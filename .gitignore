@@ -22,3 +22,11 @@
 *.out
 *.synctex.gz
 *.png
+*.jpg
+pisalogo-eps-converted-to.pdf
+pisalogo.eps
+tesi-frn.eps
+tesi-frn.pdf
+tesi-frn.tex
+tesi.fdb_latexmk
+tesi.fls
