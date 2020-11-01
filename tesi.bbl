@@ -1,0 +1,44 @@
+\begin{thebibliography}{10}
+
+\bibitem{zdm:1}
+``\href{https://www.zerynth.com/zdm/}{Zerynth Device Manager}.''
+\newblock www.zerynth.com/zdm.
+
+\bibitem{opentracing:2}
+``\href{https://github.com/yurishkuro/opentracing-tutorial/tree/master/go}{Opentracing
+  Tutorial},'' 2017.
+\newblock github.com/yurishkuro/opentracing-tutorial/tree/master/go.
+
+\bibitem{go:2}
+``\href{https://gokit.io/}{Go kit},'' 2014.
+\newblock gokit.io.
+
+\bibitem{jaeger:1}
+``\href{https://www.jaegertracing.io/}{Jaeger Tracing},'' 2020.
+\newblock www.jaegertracing.io.
+
+\bibitem{go:1}
+``\href{https://golang.org/}{Golang},'' 2007.
+\newblock golang.org.
+
+\bibitem{opentracing:1}
+``\href{https://opentracing.io/}{The opentracing project}.''
+\newblock opentracing.io.
+
+\bibitem{gogs:1}
+``\href{https://gogs.io/}{Gogs}.''
+\newblock gogs.io.
+
+\bibitem{docker:1}
+``\href{https://www.docker.com/}{Docker}.''
+\newblock www.docker.com.
+
+\bibitem{easyredmine:1}
+``\href{https://www.easyredmine.com/}{Easyredmine}.''
+\newblock www.easyredmine.com.
+
+\bibitem{rabbit:1}
+``\href{https://www.rabbitmq.com/}{Rabbit Message Queue}.''
+\newblock www.rabbitmq.com.
+
+\end{thebibliography}
