@@ -28,6 +28,8 @@
 per architetture a micro servizi}
 \Candidato[559556]{James Luigi Francario}
 \Relatore{Prof. Daniele Mazzei}
+\Relatore{Giacomo Baldi}
+\Relatore{Davide Neri}
 \Annoaccademico{2019-2020}
 \end{frontespizio}
 
@@ -67,11 +69,11 @@ per una tesi scarseggiavano; il secondo motivo e più importante motivo è che l
 il CTO dell' azienda Giacomo Baldi per discutere del lavoro svolto da Zerynth ed di eventuali occasioni di tirocini. Dunque l'autore ha scritto al professore per dichiarare il suo interesse per un eventuale tirocinio, e dopo un breve colloquio con G.Baldi è stato proposto questo tirocinio sullo sviluppo di un sistema di tracing per architettura a micro servizi.
 \section{Preparazione autonoma}
 Dopo essermi incontrato con i miei tutori aziendali, ci siamo accordati su cosa studiare autonomamente per prepararmi allo sviluppo del sistema.
-Prima di tutto, ho imparato autonomamente il linguaggio di programmazione Golang poiché è il linguaggio utilizzato per lo ZDM\cite{zdm:1}.
+Prima di tutto, si è imparato autonomamente il linguaggio di programmazione Golang poiché è il linguaggio utilizzato per lo ZDM\cite{zdm:1}.
 Poi si è proseguito con lo studio delle librerie di opentracing, una libreria open-source che permette di tracciare micro servizi.
 Questo studio è stato effettuato tramite un tutorial\cite{opentracing:2} messo a disposizione da uno degli sviluppatori della libreria. Dopo di che, per avere un' idea piú chiara su come funzioni lo ZDM,
 ho studiato autonomamente la libreria di Go kit\cite{go:2}, una libreria di Golang che permette una facilitata gestione dei micro servizi.
-Assieme ad opentracing ho anche studiato le librerie di Jaeger\cite{jaeger:1}, uno strumento che serve in parallelo con opentracing.
+Assieme ad opentracing si è anche studiato le librerie di Jaeger\cite{jaeger:1}, uno strumento che serve in parallelo con opentracing.
 Di tutte queste tecnologie ne parleremo nel seguente capitolo.
 \chapter{Tecnologie utilizzate}
 \section{Golang}
@@ -132,7 +134,7 @@ In oltre, dopo aver registrato qualche span, jaeger si occupa anche di costruire
 \end{figure}
 
 \section{Go kit}
-Go kit\cite{go:2} è una libreria Golang che è stata utilizzata per lo sviluppo dello ZDM\cite{zdm:1}. Cercando tra la documentazione, ho trovato anche dei metodi relativi al tracing che si sono rivelati utili
+Go kit\cite{go:2} è una libreria Golang che è stata utilizzata per lo sviluppo dello ZDM\cite{zdm:1}. Cercando tra la documentazione, sono stati trovati anche dei metodi relativi al tracing che si sono rivelati utili
 per il tracing delle richieste HTTP tra i micro servizi. 
 % TODO Cambia git in Gogs
 \section{Gogs}
@@ -149,7 +151,7 @@ vuole prelevare i messaggi di una coda deve sottoscriversi ad essa con un determ
 Qesto protocollo è stato usato attraverso la libreria GO amqp.
 \section{Zerynth Device Manager}
 Lo Zerynth Device Manager\cite{zdm:1} (abbreviato ZDM) l' applicazione distribuita di Zerynth. È un servizio per la gestione di device e di dati per registrare, organizzare, monitorare, aggiornare e gestire in maniera remota IoT device ( device dell' internet delle cose).
-È anche l'applicazione su cui ho dovuto implementare il sistema di tracing di micro servizi.
+È anche l'applicazione su cui è dovuto implementare il sistema di tracing di micro servizi.
 
 \chapter{Architettura generale del sistema di tracing}
 In questo capitolo vedremo una descrizione quanto meno dettagliata dell' architettura del sistema. Si parlerà delle 3 principali comunicazioni tracciate, e per ognuna come si è realizzato il tracing attraverso le
@@ -162,25 +164,47 @@ di Jaeger come variabili d'ambiente per ogni microservizio. Queste variabili d'a
 \begin{figure}[H]
     \includegraphics[scale=0.5]{envvar.png}
     \centering
-    \caption{Variabili d' ambiente del servizio di login. Tra quelle obbligatorie abbiamo il nome del servizio e l' agent host, quest' ultmo è il nome dell'host dove risiede lo jaeger agent}
+    \caption{Variabili d' ambiente del servizio di login. Tra quelle obbligatorie si ha il nome del servizio e l' agent host, quest' ultimo è il nome dell'host dove risiede lo jaeger agent}
 \end{figure}
+
 Queste variabile d'ambiente vengono esportate in una struttura nel codice del main attraverso un metodo della libreria dello ZDM\cite{zdm:1} Utils, in particolare di un pacchetto chiamato "tracing" creato dal tirocinante.
+\begin{figure}[H]
+    \includegraphics[scale=0.5]{init.png}
+    \centering
+    \caption{Codice della funzione "init" che si occupa di inizializzare le varie configurazioni del servizio. L' ultima è la configurazione del client jaeger.}
+\end{figure}
 In questo pacchetto troviamo anche la funzione che restituisce il tracer menzionata prima.
 Subito dopo aver creato il tracer si imposta come tracer globale, come spiegato qualche momento fa. Questo passaggio è molto importante perché si utilizzerà sempre il tracer globale,
 dunque per evitare errori c'è bisogno che sia definito il prima possibile.
-
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{ini2.png}
+    \caption{Esempio di codice che inizializza il tracer e lo imposta come global tracer.}
+\end{figure}
 \section{Tracing di richieste http}
 Questo è il primo tipo di comunicazione di cui è stato sviluppato un sistema di tracing. Il concetto base per la propagazione di uno span tra due micro servizi è piuttosto banale: gli span vengono propagati tramite un contesto ( un oggetto del Golang), ovvero si può  creare un contesto e legare ad esso uno span. Quando viene eseguita una richiesta Http si può inserire negli header della richiesta il contesto contenente lo span. 
 Dall'altra parte, quando si riceve una richiesta Http, basta estrarre dagli header il contesto contenente lo span e far partire un nuovo span figlio dello span del contesto. 
 L'inserimento e l'estrazione di uno contesto in una richiesta Http è ottenuto attraverso i due metodi dell' oggetto tracer, tracer.Inject e tracer.Extract.
 \subsection{Tracing del client Http}
-Per il tracing dei servizi che fanno richieste Http ad un altro servizi, si è ampliato il pacchetto "micro", della libraria Utils dello ZDM\cite{zdm:1}, con dei nuovi metodi per arricchire il contenuto della richiesta con il contesto contenente uno span.
-Nello ZDM\cite{zdm:1}, quando un servizio fa una richiesta Http si usa un oggetto chiamato "MicroCaller". Quest' oggetto (che fa parte del pacchetto micro) ha dei metodi per definire gli attributi della richiesta Http. Quello che si è fatto è stato semplicemente di aggiungere nuovi metodi per l'inserimento 
+Per il tracing dei servizi che fanno richieste Http ad un altro servizi, si è ampliato il pacchetto "micro", della libraria Utils dello ZDM\cite{zdm:1}, 
+con dei nuovi metodi per arricchire il contenuto della richiesta con il contesto contenente uno span.
+Nello ZDM\cite{zdm:1}, quando un servizio fa una richiesta Http si usa un oggetto chiamato "MicroCaller".
+ Quest' oggetto (che fa parte del pacchetto micro) ha dei metodi per definire gli attributi della richiesta Http. Quello che si è fatto è stato semplicemente di aggiungere nuovi metodi per l'inserimento 
 del contesto tra gli attributi della richiesta. Quindi per propagare il contesto tra due micro servizi basta utilizzare i nuovi metodi del pacchetto micro.
 \subsection{Tracing del server Http}
-Il discorso è un po' più complicato per i servizi che si comportano come server, ovvero quelli che ricevono le richieste Http. Ogni servizio "server" crea nel suo main un HttpServerHandler: un oggetto che si mette in ascolto su una determinata porta ( definita dalle variabili d'ambiente) per servire le richieste Http. Quando viene creato quest'oggetto viene invocata una funzione che lo inizializza secondo determinate opzioni; tra queste opzioni 
-vi è una in particolare che è stata utilizzata per estrarre il contesto dalla richiesta Http: le opzioni ServerBefore. Come si può intuire dal nome, sono una lista di funzioni che vengono eseguite prima del consumo della richiesta http, quindi appena arriva la richiesta il server esegue le funzioni contenute nelle opzioni ServerBefore. Tra queste funzione si è inserita una funzione della libreria Go kit tracing, chiamta HTTPToContext; quello che fa è proprio estrarre il contesto della richieste e passarlo alla funzione successiva nella catena di chiamate. In questo modo  lo span è nel contesto di tutta la catena di chiamate che vengono eseguite.
-Dopo di questo, il server chiama il metodo per gestire la richiesta ricevuta, in base al tipo di richiesta. In particolare per ogni tipo di richiesta viene creato un endpoint, ovvero il "luogo" dove vengono gestite quel tipo di richiesta. Per tracciare l'operazione gestita dall' endpoint si chiama una funzione della libreria Go kit tracing (la stessa libreria menzionata prima), la funzione in questione si chiama TraceServe; questo metodo prende due argomenti, il tracer (questo è il tracer globale) e il nome dell' operazione (il nome dell' operazione gestita dall' endpoint) e restituisce un nuovo endpoint, che però ha nel contesto un nuovo span creato dalla funzione stessa. Questo span sarà proprio il figlio dello span ricevuto nel contesto della richiesta Http. 
+Il discorso è un po' più complicato per i servizi che si comportano come server, ovvero quelli che ricevono le richieste Http. 
+Ogni servizio "server" crea nel suo main un HttpServerHandler: un oggetto che si mette in ascolto su una determinata porta 
+( definita dalle variabili d'ambiente) per servire le richieste Http. Quando viene creato quest'oggetto viene invocata una 
+funzione che lo inizializza secondo determinate opzioni; tra queste opzioni 
+vi è una in particolare che è stata utilizzata per estrarre il contesto dalla richiesta Http: le opzioni ServerBefore.
+ Come si può intuire dal nome, sono una lista di funzioni che vengono eseguite prima del consumo della richiesta http, quindi appena
+  arriva la richiesta il server esegue le funzioni contenute nelle opzioni ServerBefore. Tra queste funzioni
+   si è inserita una funzione della libreria Go kit tracing, chiamta HTTPToContext; quello che fa è proprio estrarre il contesto
+    della richieste e passarlo alla funzione successiva nella catena di chiamate. In questo modo  lo span è nel contesto di tutta
+     la catena di chiamate che vengono eseguite.
+Dopo di questo, il server chiama il metodo per gestire la richiesta ricevuta,in base al tipo di richiesta. In particolare per ogni tipo di richiesta viene creato un endpoint,
+ovvero il "luogo" dove vengono gestite quel tipo di richiesta. Per tracciare l'operazione gestita dall'
+endpoint si chiama una funzione della libreria Go kit tracing (la stessa libreria menzionata prima), la funzione in questione si chiama TraceServer; questo metodo prende due argomenti, il tracer (questo è il tracer globale) e il nome dell' operazione (il nome dell' operazione gestita dall' endpoint) e restituisce un nuovo endpoint, che però ha nel contesto un nuovo span creato dalla funzione stessa. Questo span sarà proprio il figlio dello span ricevuto nel contesto della richiesta Http. 
 
 \section{Tracing di scambio di messaggi RMQ}
 Il secondo tipo di comunicazione che si è tracciato sono lo scambio di messaggi Rabbit Message Queue. Il protocollo prevede un publisher e un subscriber, il publisher pubblica i messi su un oggetto chiamato exchange che smista i messaggi nelle code al quale è connesso. I messaggi vengono smistati in base al loro interesse, chiamato "topic". Il subscriber si può sottoscrivere ad una coda specificando il topic a cui è interessato. Quando nella coda è presenta un messaggio con quel topic, il subscriber viene avvisato e preleva il messaggio. I messaggi si chiamano delivery e possiedono diversi attributi,tra i quali degli headers simili a quelli delle richieste Http.
@@ -191,9 +215,17 @@ L' inserimento del contesto (che in questo caso è uno spanContext e non un cont
 \subsection{Tracing del Subscriber}
 Per il tracing del subscriber si è aggiunta una funzione al pacchetto "queue" delle Utils dello ZDM\cite{zdm:1}. Questa funzione prende come argomento la funzione che si occupa del consumo del messaggio, la handleFunc:
 in questo modo crea uno span prima del consumo del messaggio, lo inserisce nel messaggio e poi chiama la handleFunc e infine termina lo span. Questo procedimento viene fatto nella funzione ConsumeLoop del subscriber, ovvero il codice che si mette in ascolto di nuovi messaggi nella coda.
+\\Oltre a questo meccanismo, similmente come per il tracing dei server Http, bisogna impostare tra le opsioni ServerBefore ( in questo caso sono le funzioni che vengono eseguite prima della ricezione di un messaggio) una funzione creata dal tirocinante; questa funzione non fa altro che creare uno span partendo dal contesto presente nel messaggio, ed inserirlo nella catena di funzioni che si 
+occupano del consumo del messaggio. Anche in questo caso viene poi creato l' endopoint,  e si utilizza una funzione per impostare il nome dello span in base all' operazione gestita dall' endpoint.
+
+\newpage
+
 \section{Tracing di richieste ai Database}
-Per il tracing di richieste ai Database si è aggiunto dei metodi nel pacchetto "db" (database) delle Utils dello ZDM\cite{zdm:1}. Se la variabile d' ambiente DB-TRACING è impostata a true allora viene eseguito il tracing altrimenti no(il valore di default è "true", dunque anche se non si specifica la variabile il tracing verrà effettuato).
-In particolare, se la variabile d'ambiente è impostata a true, allora si aggiunge un "QueryHook" database. Questo QueryHook implementa due metodi, un before e  un after query. Questi metodi vengono chiamati prima e dopo dell'esecuzione effettiva della richiesta. L'implementazione della BeforeQuery prevede la creazione di uno span che poi viene terminato nella AfterQuery.
+Per il tracing di richieste ai Database si è aggiunto dei metodi nel pacchetto "db" (database) delle Utils dello ZDM\cite{zdm:1}. Se la variabile 
+d' ambiente DB-TRACING è impostata a true allora viene eseguito il tracing altrimenti no(il valore di default è "true", dunque anche se 
+non si specifica la variabile il tracing verrà effettuato).
+In particolare, se la variabile d'ambiente è impostata a true, allora si aggiunge un "QueryHook" database. Questo QueryHook
+ implementa due metodi, un before e  un after query. Questi metodi vengono chiamati prima e dopo dell'esecuzione effettiva della richiesta. L'implementazione della BeforeQuery prevede la creazione di uno span che poi viene terminato nella AfterQuery.
 A livello di servizio, bisogna passare il contesto che si vuole tracciare alla richiesta al database. Per esempio, se un servizio volesse ottenere i dati di un utente attraverso un metodo che è del tipo "db.Select("query") bisognera usare un metodo alternativo del tipo "db.SelectWithContext(ctx,"query"), in modo da propagare il contesto (e lo span eventualmente presente nel contesto) attraverso la richiesta al database.
 
 
@@ -205,7 +237,7 @@ Zerynth ha scelto, da qualche anno, il protocollo di sviluppo AGILE: lavorano in
 Non finire un task nel tempo stimato non è necessariamente un problema; infatti questa stima è solamente una stima ottimistica. Inoltre ogni task ha una priorità ed è specificato se un task è "rimandabile", nel senso che si può rimandare allo sprint successivo, oppure "non rimandabile", ovvero un task con assoluta urgenza. Inoltre, secondo il metodo di sviluppo agile,  si lavora per raggiungere una \textit{"milestone"}, ovvero un obbiettivo che si vuole raggiungere entro un determinato numero di sprint. Per esempio il sistema di tracing sviluppato da questo tirocinio è stato inserito proprio nel milestone più  vicino.\\
 Quindi ci si è adattati a questo tipo di lavoro; si è inserito il tirocinante nella piattaforma e si è iniziato ad assegnargli task.\\
 Da ora in poi questo capitolo sarà diviso in sezioni, dove ogni sezione corrisponde ad uno sprint di due settimane.
-Questo capitolo è stato scritto come una specie di "diario" del lavoro svolto, quindi descrive sistema sviluppato da zero, dunque ci sono delle divergenze con l'architettura descritta nel capitolo 4, poichè quella è il risultato finale del sistema implementato, mentre in questo capitolo viene descritto il sistema durante la sua evoluzione.
+\\Questo capitolo è stato scritto come una specie di "diario" del lavoro svolto, quindi descrive sistema sviluppato da zero, dunque ci sono delle divergenze con l'architettura descritta nel capitolo 4, poichè quella è il risultato finale del sistema implementato, mentre in questo capitolo viene descritto il sistema durante la sua evoluzione.
 \section{Primo sprint}
 
 Dunque nel primo sprint si è provveduto a preparare l'ambiente di lavoro sul PC del tirocinante, ovvero con l'aiuto del responsabile dello sviluppo software si è installato lo ZDM\cite{zdm:1}. Dopo di che si è passato a svolgere il primo task: studiare il progetto di opentracing, in particolare
@@ -222,22 +254,22 @@ Alla fine di questo sprint (come in ogni sprint) si è tenuto lo sprint review, 
 \newpage
 \section{Secondo sprint}
 In questo sprint si è realizzata la prima implementazione del tracing di richieste Http e scambi di messaggi RMQ. Prima si 
-si è sviluppato il codice per l'inizializzazione del tracer e della configurazione dello jaeger client. Poi si discute del tracing delle comunicazione di alcuni microservizi.
+è sviluppato il codice per l'inizializzazione del tracer e della configurazione dello jaeger client. Poi si discute del tracing delle comunicazione di alcuni microservizi.
 
 
 
 \subsection{Impostazioni del client Jaeger}
 Il modo in cui vengono mostrati gli span nella GUI di Jaeger dipende esclusivamente dalla configurazione del client jaeger.
-La configurazione è una struttura chiave valore che imposta i paramatri del client; i parametri che abbiamo usato per una prima implementazione sono stati il nome del servizio (obbligatorio), l' host del servizio jaeger (obbligatorio) e poi il tipo di \textit{sampler}. Il sampler è l' oggetto che determina come verranno mandati gli span allo jaeger collector:
-ci sono più tipo di sampler ad esempio abbiamo il \textit{costant} sampler, che manda tutti gli span registrati; oppure il \textit{probabilistic} sampler che prende come parametro un numero tra 0 e 1 che rappresenta la probabilità che quello span venga mandato al collector. Questa differenziazione è presente perché gli span registrati in un' architettura a micro servizi possono essere molti, anche migliaia. Essendo in una fase di sviluppo conviene però monitorare tutti gli span registrati dal client, dunque un sampler di tipo costante fa al caso nostro.
-Tutte queste impostazioni sono ottenute attraverso delle variabili d' ambiente. Di seguito possiamo vedere una foto di una prima implementazione del metodo che inizializza il client jaeger per un determinato tracer.
+La configurazione è una struttura chiave valore che imposta i paramatri del client; i parametri usati per una prima implementazione sono stati il nome del servizio (obbligatorio), l' host del servizio jaeger (obbligatorio) e poi il tipo di \textit{sampler}. Il sampler è l' oggetto che determina come verranno mandati gli span allo jaeger collector:
+ci sono più tipo di sampler ad esempio si ha il \textit{costant} sampler, che manda tutti gli span registrati; oppure il \textit{probabilistic} sampler che prende come parametro un numero tra 0 e 1 che rappresenta la probabilità che quello span venga mandato al collector. Questa differenziazione è presente perché gli span registrati in un' architettura a micro servizi possono essere molti, anche migliaia. Essendo in una fase di sviluppo conviene però monitorare tutti gli span registrati dal client, dunque un sampler di tipo costante fa al caso nostro.
+Tutte queste impostazioni sono ottenute attraverso delle variabili d' ambiente.
 \\ Di seguito possiamo vedere il codice della funzione che inizializza il tracer con la configurazione dello jaeger client presa dalle variabili d'ambiente.
 Il tipo di sampler usato è costante, poichè è stato necessario in fase di testing vedere ogni span registrato, a fini di debugging.
 \begin{figure}[H]
     \includegraphics[scale=0.5]{92.png}
     \centering
     \caption{Prima implementazione del metodo che crea un tracer secondo i parametri del client jaeger}
-\end{figure}
+\end{figure}  
 Questa implementazione verrà poi cambiata nella build finale del sistema, come vedremo nella sezione dedicata al refactoring nell' ultimo sprint.
 \subsection{Tracing di richieste HTTP}
 %TODO migliorare descrizione architettura richieste http
@@ -261,7 +293,7 @@ Nelle due figure precedenti si può vedere la comuniazione di quei 3 servizi. Il
 \subsection{Tracing di scambio di messaggi RMQ}
 Dopo aver realizzato un modo per tracciare le richieste HTTP dei micro servizi, qualunque sia il micro servizio attraverso l'implementazione nella libreria di supporto, si è passato al task di implementare
 il tracing di un altro tipo di comunicazione: lo scambio di messaggi attraverso il protocollo Rabbit MSQ (vedi CAP. 3 Tecnologie utilizzate).\\
-In questo caso un micro servizio che vuole pubblicare un messaggio su una coda (sono quelle frecce verdi allungate nello schema logico) deve pubblicare i messaggi sull'exchange della coda (i rombi bianchi). Dunque bisogna  inserire il contesto dello span che rappresenta la pubblicazione del messaggio nel messaggio stesso. Questo è stato effettuato tramite una libreari di supporto amqptracer; ogni messaggio, similmente ad una richiesta htpp, possiede degli headers; la libreria di supporto permette di inserire il contesto negli headers e dall'altra parte, quando un servizio preleva un messaggio, estrarre il contesto per creare uno span figlio di quello nel contesto.
+In questo caso un micro servizio che vuole pubblicare un messaggio su una coda (sono quelle frecce verdi allungate nella figura 5.1) deve pubblicare i messaggi sull'exchange della coda (i rombi bianchi nella figura 5.1). Dunque bisogna  inserire il contesto dello span che rappresenta la pubblicazione del messaggio nel messaggio stesso. Questo è stato effettuato tramite una libreari di supporto amqptracer; ogni messaggio, similmente ad una richiesta htpp, possiede degli headers; la libreria di supporto permette di inserire il contesto negli headers e dall'altra parte, quando un servizio preleva un messaggio, estrarre il contesto per creare uno span figlio di quello nel contesto.
 Per far ciò si è direttamente implementato il sistema nella libreria menzionata prima, le "Utils". Infatti questa libreria permette ai micro servizi di pubblicare messaggi e sottoscriversi alla ricezione dei messaggi dalle code.\\
 Questo sistema è stato prima testato sui micro servizi triggerstatus e statusdown.
 \begin{figure}[H]
@@ -275,15 +307,15 @@ Questo sistema è stato prima testato sui micro servizi triggerstatus e statusdo
     \centering
     \caption{Risultato del traci di un messaggio RMQ nella GUI jaeger}
 \end{figure}
-Come si puó vedere nella figura 4.5, il trace di un messaggio rmq appare un po' diverso: lo span del servizio che legge il messaggio (statusdown service) non appare sotto lo span di quello che lo ha pubblicato (triggerstatus service); appare dopo un gap di tempo, come è giusto che sia, dato che il messaggio viene pubblicato sull' exchange della coda, poi messo nella coda e infine letto dal servizio che se ne occupa.
-La comunicazione tra triggerstatus e statusdown avveniva quando veniva depositato un nuovo dato del database collegato al triggerstatus. Quando captava questo evento, il triggerstatus manda il messaggio rilevato del database allo statusdown.
+Come si puó vedere nella figura 5.6, il trace di un messaggio rmq appare un po' diverso: lo span del servizio che legge il messaggio (statusdown service) non appare sotto lo span di quello che lo ha pubblicato (triggerstatus service); appare dopo un gap di tempo, come è giusto che sia, dato che il messaggio viene pubblicato sull' exchange della coda, poi messo nella coda e infine letto dal servizio che se ne occupa.
+La comunicazione tra triggerstatus e statusdown avviene quando veniva depositato un nuovo dato del database collegato al triggerstatus. Quando captava questo evento, il triggerstatus manda il messaggio rilevato del database allo statusdown.
 
 \newpage
 \section{Terzo sprint}
-In questo sprint si è sviluppata la prima versione di tracing delle richieste http. Dopo di che si è implementato il sistema complessivo sviluppato finora (Http, RMQ, db) su altri microservizi che vedremo nel dettaglio.
+In questo sprint si è sviluppata la prima versione di tracing delle richieste ai database. Dopo di che si è implementato il sistema complessivo sviluppato finora (Http, RMQ, db) su altri microservizi che vedremo nel dettaglio.
 
 \subsection{Tracing delle richieste ai database}
-Come si è visto dalla figura 4.1, nello ZDM\cite{zdm:1} sono presenti diversi database che contengono i dati degli utenti, i dati spediti dai device connessi allo ZDM\cite{zdm:1} e così via; dunque il primo task per questo sprint è stato di 
+Come si è visto dalla figura 5.1, nello ZDM\cite{zdm:1} sono presenti diversi database che contengono i dati degli utenti, i dati spediti dai device connessi allo ZDM\cite{zdm:1} e così via; dunque il primo task per questo sprint è stato di 
 tracciare le richieste dei micro servizi ai database. Questo è stato implementando modificando la libreria Utils, che si occupa di fornire ai servizi alcuni
  metodi per la gestione dei database; 
 dunque si sono inseriti i metodi relativi al tracing in questa libreria, che sono stati poi usati negli micro 
@@ -292,7 +324,7 @@ Come si può intuire da nome, questi metodi vengono chiamati prima e dopo l' ese
 Il risultato ottenuto è stato quello di poter visualizzare gli span che rappresentano una richiesta ai database tra gli span delle richieste http e richieste di messaggi; di seguito un esempio.
 %TODO inserire figura database quuery
 \begin{figure}[H]
-    \includegraphics[scale=0.4]{43.jpg}
+    \includegraphics[scale=0.21]{database.png}
     \centering
     \caption{Risultato delle richieste ai database nella GUI jaeger}
 \end{figure}
@@ -300,7 +332,7 @@ Il risultato ottenuto è stato quello di poter visualizzare gli span che rappres
 \subsection{Implementazione del tracing per altri micro servizi}
 Dopo aver affinato l' implementazione di  opentracing per i 3 tipi di comunicazione dei micro servizi dello ZDM\cite{zdm:1}, si è passati ad estenderla a ad altri micro servizi;
 le operazione che si sono tracciate in questa fase sono relative allo scambio dei dati dei device connessi allo ZDM\cite{zdm:1} tra i micro servizi; tutta questa operazione è una combinazione di richieste HTTP, scambio di messaggi RMQ e richieste ai database, quindi senza entrare troppo nei dettagli ecco alcune immagini esplicative delle interazioni e dei risultati ottenuti.\\
-Di seguito riporto la stessa immagine dello schema logico delle interazioni dello ZDM\cite{zdm:1}, dove ho evidenziato quali servizi si sono tracciati.
+Di seguito riporto la stessa immagine dello schema logico delle interazioni dello ZDM\cite{zdm:1}, nel quale si è evidenziato quali servizi si sono tracciati.
 \begin{figure}[H]
     \includegraphics[scale=0.3]{61.jpg}
     \centering
@@ -312,7 +344,12 @@ Avendo a questo punto già sviluppato le librerie e le migliori pratiche per tra
 In merito alla figura 4.7, farò  riferimento ad ogni riquadro e descriverò brevemente quali tipi di comunicazioni avvengono tra i micro servizi interessati.
 
 \subsection{Riquadro 1}
-Queste comunicazioni nascono quando un device collegato allo ZDM\cite{zdm:1} invia dei dati a quest'ultimo; i servizi che per primi ricevono questi dati sono l' ingestion-service e lo statusup-service, in particolare li ricevono prelevandoli dalle code di messaggi a cui sono collegati, quindi qui si è trattato di tracciare uno scambio di messaggi RMQ. Dopo di che l' ingestion service, dopo aver elaborato il dato ricevuto, lo manda al tsmanager tramite richiesta HTTP. Lo statusup-service invece manda il suo elaborato tramite RMQ al condition-service e fa anche una richiesta http allo status service. Quest' ultimo in seguito a questa richiesta, esegue una database query; questa database query fa scattare il triggerstatus-service, che scrive sulla coda che comunica con lo statusdown-service questo avvenimento. In parallelo, ritornando al condition service, questo manda il messaggio ricevuto dallo statusup al gatescheduler service, che si occuperà infine di passare il messaggio nell'altro riquadro. Come potete notare, spiegare tutte queste interazioni è molto confusionario, ed è qui che entra in gioco il lavoro svolto durante questo tirocinio. Di seguito delle immagine che traducono tutto quello che ho provato a spiegare futilmente.
+Queste comunicazioni nascono quando un device collegato allo ZDM\cite{zdm:1} invia dei dati a quest'ultimo; i servizi che per primi ricevono questi dati
+ sono l' ingestion-service e lo statusup-service, in particolare li ricevono prelevandoli dalle code di messaggi a cui sono collegati, quindi qui si è 
+ trattato di tracciare uno scambio di messaggi RMQ. L' ingestion service, dopo aver elaborato il dato ricevuto, lo manda al tsmanager tramite
+richiesta HTTP. Lo statusup-service invece manda il suo elaborato tramite RMQ al condition-service e fa anche una richiesta http allo status service. 
+Quest' ultimo in seguito a questa richiesta, esegue una database query; questa database query fa scattare il triggerstatus-service, che scrive sulla coda che
+ comunica con lo statusdown-service questo avvenimento (questa è la comunicazione usata per testare il tracing RMQ). In parallelo, ritornando al condition service, questo manda il messaggio ricevuto dallo statusup al gatescheduler service, che si occuperà infine di passare il messaggio nell'altro riquadro. Come potete notare, spiegare tutte queste interazioni è molto confusionario, ed è qui che entra in gioco il lavoro svolto durante questo tirocinio. Di seguito delle immagini che traducono tutto quello che è stato appena spiegato.
 \begin{figure}[H]
     \includegraphics[scale=0.21]{49.png}
     \centering
@@ -346,13 +383,13 @@ Ora le comunicazioni del riquadro numero 2. Dopo che il gatescheduler riceve i d
     \caption{Trace del condition flow}
 \end{figure}
 \begin{figure}[H]
-    \includegraphics[scale=0.21]{78.png}
+    \includegraphics[scale=0.21]{email.png}
     \centering
-    \caption{Trace del condition-worker che manda il messaggio del device che rispetta una certa condizione (impostata dalla web app) all'emaipusher-service che manda un email all'utente}
+    \caption{Trace del percoso che fa un dato che viola una certa condizione (impostata da webapp), fino alla comunicazione per emil dell' emailpusher}
 \end{figure}
 
 \subsection{Riquadro 3}
-Qui si è semplicemente tracciato tutte le comunicazione che esegue il gates service con il suo database. Di seguito qualche immagine esplicativa.
+Qui si è semplicemente tracciato tutte le comunicazione che esegue il gates service con il suo database. Di seguito un' immagine esplicativa.
 \begin{figure}[H]
     \includegraphics[scale=0.21]{90.png}
     \centering
@@ -362,33 +399,42 @@ Qui si è semplicemente tracciato tutte le comunicazione che esegue il gates ser
 \section{Quarto sprint}
 Questo è stato lo sprint finale; in questa fase si è occupato di rifinire un pò tutte le implementazioni di tracing. Si è partiti da un piccolo refactoring per aggiungere tutti i nuovi metodi alla libreria di supporto Utils dello ZDM\cite{zdm:1} ; poi si è passato alla stesura della documentazione relativa all' architettura dell'implementazione.\\Si è conclusa con la fase di testing per il deployment de servizio e conclusione del tirocinio.
 \subsection{Documentazione}
-Per scrivere la documentazione si è prima pensato a chi fosse rivolta. Questo sistema , infatti, è rivolto a programmatori che devono estendere il servizio di tracing a nuovi micro servizi. Come sappiamo un architettura a a micro servizi è molto dinamica, il che è sia un vantaggio che non. Difatti l' applicazione puó crescere aggiungendo micro servizi e se si aggiunge un micro servizio bisogna anche implementare il sistema di tracing su quel micro servizio.
+Per scrivere la documentazione si è prima pensato a chi fosse rivolta. La documentazione è ai programmatori che devono estendere il servizio di tracing a nuovi micro servizi. Come sappiamo un architettura a micro servizi è molto dinamica, il che è sia un vantaggio che non. Difatti l' applicazione puó crescere aggiungendo micro servizi e se si aggiunge un micro servizio bisogna anche implementare il sistema di tracing su quel micro servizio.
 Dunque la documentazione è stata scritta con questo presupposto, ovvero pensata per i programmatori che dovranno tracciare nuovi micro servizi o anche modificare il tracing di quelli gia tracciati.\\
 La prima parte riguarda l'architettura generale del sistema, le librerie utilizzate e le migliori pratiche da utilizzare. Poi si passa a spiegare in particolare come tracciare i 3 tipi di comunicazione dello ZDM\cite{zdm:1}, ovvero richieste HTTP, messaggi RMQ e richieste ai database. 
-Infine una breve guida su come creare nuovi trace e span senza dover per forza utilizzare i metodi messi a disposizione dal sistema che ho implementato, in modo da risultare in un tracing più preciso possibile. 
+Infine una breve guida su come creare nuovi trace e span senza dover per forza utilizzare i metodi messi a disposizione dal sistema sviluppato dal tirocinante, in modo da risultare in un tracing più preciso possibile. 
 
 \subsection{Refactoring}
 Questo task riguardava la rifinitura di alcuni punti lasciati in sospeso del sistema di implementazione, ad esempio includere nelle librerie dello ZDM\cite{zdm:1} alcuni metodi per l'inizializzazione del client jaeger, il settaggio di tutte le variabili d'ambiente di tutti i micro servizi relativi alla configurazione di jaeger.
 Insomma una specie di revisione del lavoro svolto fin'ora.
-Prima di tutto si è scritta una libreria apposita per tutti i metodi relativi al tracing; questa libreria, chiamata semplicemente "tracing", è stata inserita nella librearia "Utils" dello ZDM\cite{zdm:1}.
+Prima di tutto si è scritta una libreria apposita per tutti i metodi relativi al tracing; questa libreria, chiamata semplicemente "tracing", 
+è stata inserita nella librearia "Utils" dello ZDM\cite{zdm:1}.
 Prevede principalmente i metodi per creare un nuovo tracer con le impostazioni del client jaeger prese dalle variabili d'ambiente
-Poi si è anche effettuato un refactoring del tracing dello scambio di messaggi RMQ; infatti si è reso più simile a quello delle richieste Http per quanto riguarda i subscriber. Quando un subscriber si registra, deve definire un proprio "server" che è in ascolto sui messaggi, ebbene esattamente come per i server delle richieste http (4.4.2) si
-è creata una funzione da inserire nelle opzioni "ServerBefore" che estrae il contesto contenuto nel messaggio (il delivery) e lo inserisce nel contesto passato alla catena di funzioni che si occupano del messaggio.
+Poi si è anche effettuato un refactoring del tracing dello scambio di messaggi RMQ; infatti si è reso più simile a quello delle
+ richieste Http per quanto riguarda i subscriber. Quando un subscriber si registra, deve definire un proprio "server" che è in ascolto sui messaggi, ebbene esattamente come per i server delle richieste http (4.4.2) si
+è creata una funzione da inserire nelle opzioni "ServerBefore" che estrae il contesto contenuto nel messaggio (il delivery)
+ e lo inserisce nel contesto passato alla catena di funzioni che si occupano del messaggio.
+ \\Per ultimo si è effettuato un refactoring del tracing delle richieste ai database; come il lettore può ricordare dal capitolo 5 sezione 5.3.1, il tracing delle richieste database avveniva attacondosi alla struture del DatabaseLogger. Il problema è che 
+ questa strutture serve esclusivamente per il logging delle query effettuate e non del tracing, dunque usarlo per ambo gli scopi (tracing e logging) non è una scelta giusta. Anche perchè il logging delle richieste ai database sono lunghi,sporcano molto il log del servizio rendendo più macchinoso trovare un eventuale errore.
+ Dunque si è creata una struttura a parte, un nuovo QueryHook chiamato (con molta fantasia) DatabaseTracer; anch'essa implementa i due metodi after e before query, e in questo modo si è separato il meccanismo di tracing e quello di logging.
 
 
 \subsection{Testing}
-Per la fase di testing si è eseguito il deployment dei servizi tracciati in questo tirocinio sulla versione di test dello ZDM\cite{zdm:1}. Da questa versione dello ZDM\cite{zdm:1} si è eseguiti dei test per verificare il corretto funzionamento delle funzioni aggiunte al codice.\\
-Prima del deployment, però , si è dovuto testare tutti i microservizi in locale, eseguendo per ognuno lo script che fa partire tutti i test go; dopo aver sistemato i file di test GO, dopo essersi assicurati che tutti i servizi passassero tutti i test, si è potuto effettuare il deployment di questi servizi in testing.\\ 
+Per la fase di testing si è eseguito il deployment dei servizi tracciati in questo tirocinio sulla versione di test dello ZDM\cite{zdm:1}.
+ Da questa versione dello ZDM\cite{zdm:1} si sono eseguiti dei test per verificare il corretto funzionamento delle funzioni aggiunte al codice.\\
+Prima del deployment, però , si è dovuto testare tutti i microservizi in locale, eseguendo per ognuno lo script che fa partire tutti i test Go;
+ dopo aver sistemato i file di test Go, dopo essersi assicurati che tutti i servizi passassero tutti i test, si è potuto effettuare il deployment di questi servizi in testing.\\ 
 Non è stato un testing senza alcun problema, difatti c'è stato qualche intoppo: qualche servizio non riportava correttamente gli span. 
 Dopo aver visto i file di log dei vari container dei servizi in testing si è subito notato che c'è stato un problema nel caricare la versione giusta di alcuni microserivi; dopo aver risolto questo piccolo difetto, il sistema sviluppato fino a questo momento funzionava senza problemi.
-In questa fase non ci si è solo assicurati che il sistema funzioni correttamente ma ci si è anche domandati quali aspetti si potevano migliorare. Innanzi tutto , il supervisore ha fatto notare che alcuni trace erano superflui, quelli che riguardavano alcune query database che apparivano come singoli span, poiché erano richieste dovute
+In questa fase non ci si è solo assicurati che il sistema funzioni correttamente ma ci si è anche domandati quali aspetti si potevano migliorare. Innanzi tutto , il supervisore ha fatto notare che alcuni trace erano superflui, quelli che riguardavano alcune query database che apparivano come singoli span, poiché erano richieste che partivano senza uno span radice, dunque apparivano come singoli span, i quali anche 
+se potevano contenere informazioni utili, non avevano informazioni su quale matedo le ha invocate.
 \cite{opentracing:1}
 \chapter{Conclusione}
 Adesso la conclusione, in questo capitolo si tireranno le somme, si commenterà in generale il lavoro svolto, se è stato soddisfacente, se si è raggiunto l' obbiettivo del tirocinio e si discuteranno delle nuove skill acquisite dal tirocinante.
 \section{Skill acquisite}
 Tra la varie skill eseguite si riportano quelle più rilevanti.
 \begin{itemize}
-    \item \textbf{Git}: acquisita dimestichezza nell' uso dei comandi Git, e quindi anche di lavorare in un ambiente di sviluppo condiviso con più sviluppatori.
+    \item[] \textbf{Git}: acquisita dimestichezza nell' uso dei comandi Git, e quindi anche di lavorare in un ambiente di sviluppo condiviso con più sviluppatori.
     \item[] \textbf{Sviluppo AGILE}: utilizzando i principi di questo metodo di lavoro , il tirocinante è riuscito ad adattarsi ad essi ed integrarsi nel flusso di lavoro dell'azienda, partecipando alle riunioni (sprint review) e discutendo del lavoro svolto e quello da completare.
     \item[] \textbf{Docker}: acquisita dimestichezza nell' uso di docker e docker compose.
     \item[] \textbf{Golang}: acquisita dimestichezza nell' uso di Golang e delle sue pratiche.
@@ -398,7 +444,7 @@ Tra la varie skill eseguite si riportano quelle più rilevanti.
 
 \section{Commenti sull'Ambiente Lavorativo}
 Sin dai primi contatti con l' azienda Zerynth / TOI srl il tirocinante ha subito avuto un impatto positivo. Si sono sempre dimostrati disponibili per ogni cosa.
-I primi giorni il tirocinante di 1e recato in persona in ufficio e lavorato lì, soprattuto per discutere di come implementare il sistema e preparare l'ambiente di sviluppo; durante questo periodo è stato continuamente aiutato dai vari sviluppatori del team ZDM\cite{zdm:1} e messo a proprio agio.
+I primi giorni il tirocinante di si è recato in persona in ufficio e lavorato lì, soprattuto per discutere di come implementare il sistema e preparare l'ambiente di sviluppo; durante questo periodo è stato continuamente aiutato dai vari sviluppatori del team ZDM\cite{zdm:1} e messo a proprio agio.
 Dopo questa fase iniziale, il lavoro si è spostato principalmente a casa del tirocinante per via dell' emergenza sanitaria. Tuttavia queso non ha impattato troppo il lavoro svolto, in quanto al tirocinante è stato fornito modo di comunicare costantemente con il leader dello sviluppo software D. Neri, senza il quale questo progetto sarebbe stato molto più arduo da completare.
 Come mezzi di comunicazione si è usato Telegram,Discord, Meet, Slack, strumenti molto familiari al tirocinante quindi non hanno presentato alcun problema. C'è comunque il bisogno di riportare che il lavoro da casa non è efficiente tanto quanto quello in un ambiente lavorativo come quello dell' ufficio dell'azienda, dove il tirocinante sarebbe stato stimolato molto di più. 
 \\ In ogni caso, l'esperienza lavorativa è stata senza dubbio positiva, e consiglierei ad un eventuale lettore in dubbio sul tirocinio, di optare per quest' azienda .
@@ -406,7 +452,10 @@ Come mezzi di comunicazione si è usato Telegram,Discord, Meet, Slack, strumenti
 
 \section{Raggiungimento dell' obbiettivo e commenti sul lavoro svolto}
 Un piccolo riassunto per fissare bene i concetti visti in questa relazione:\\
-per prima cosa si è spiegato come si è iniziato a lavorare, la preparazione dell'ambiente di sviluppo, lo studio autonomo del linguaggio di programmazione Golang, le librerie di opentracing e jaeger, Gokit, Rabbit MQ. Poi si è passati alla implementazione del Tracing
+per prima cosa si è spiegato come si è iniziato a lavorare, la preparazione dell'ambiente di sviluppo, lo studio autonomo del linguaggio di programmazione 
+Golang, le librerie di opentracing e jaeger, Gokit, Rabbit MQ. \\
+Dopo le tencologie si è passati a descrivere l' architettura finale del sistema di tracing e il capitolo successivo riguarda invece il "come" è stato sviluppato. 
+Quindi si è passati alla descrizione di come si è implementato il tracing
 di richieste HTTP tra microservizi di tipo client / server. Poi il tracing dello scambio di messaggi delle ode RMQ. Infine  il tracing delle richieste ai database.
 Dopo aver affinato queste implementazioni e inserite nelle librerie dello ZDM\cite{zdm:1}, si è passato ad implementarle in altri microservizi. Infine c'è stata una fase di testing e la stesura della documentazione.
 
