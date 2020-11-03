@@ -264,7 +264,7 @@ Il modo in cui vengono mostrati gli span nella GUI di Jaeger dipende esclusivame
 La configurazione è una struttura chiave valore che imposta i paramatri del client; i parametri usati per una prima implementazione sono stati il nome del servizio (obbligatorio), l' host del servizio jaeger (obbligatorio) e poi il tipo di \textit{sampler}. Il sampler è l' oggetto che determina come verranno mandati gli span allo jaeger collector:
 ci sono più tipo di sampler ad esempio si ha il \textit{costant} sampler, che manda tutti gli span registrati; oppure il \textit{probabilistic} sampler che prende come parametro un numero tra 0 e 1 che rappresenta la probabilità che quello span venga mandato al collector. Questa differenziazione è presente perché gli span registrati in un' architettura a micro servizi possono essere molti, anche migliaia. Essendo in una fase di sviluppo conviene però monitorare tutti gli span registrati dal client, dunque un sampler di tipo costante fa al caso nostro.
 Tutte queste impostazioni sono ottenute attraverso delle variabili d' ambiente.
-\\ Di seguito possiamo vedere il codice della funzione che inizializza il tracer con la configurazione dello jaeger client presa dalle variabili d'ambiente.
+\\ Di seguito possiamo vedere il codice della funzione che inizializza il tracer con la configurazione dello jaeger client presa dalle variabili d 'ambiente.
 Il tipo di sampler usato è costante, poichè è stato necessario in fase di testing vedere ogni span registrato, a fini di debugging.
 \begin{figure}[H]
     \includegraphics[scale=0.5]{92.png}
@@ -350,7 +350,7 @@ Queste comunicazioni nascono quando un device collegato allo ZDM\cite{zdm:1} inv
  trattato di tracciare uno scambio di messaggi RMQ. L' ingestion service, dopo aver elaborato il dato ricevuto, lo manda al tsmanager tramite
 richiesta HTTP. Lo statusup-service invece manda il suo elaborato tramite RMQ al condition-service e fa anche una richiesta http allo status service. 
 Quest' ultimo in seguito a questa richiesta, esegue una database query; questa database query fa scattare il triggerstatus-service, che scrive sulla coda che
- comunica con lo statusdown-service questo avvenimento (questa è la comunicazione usata per testare il tracing RMQ). In parallelo, ritornando al condition service, questo manda il messaggio ricevuto dallo statusup al gatescheduler service, che si occuperà infine di passare il messaggio nell'altro riquadro. Come potete notare, spiegare tutte queste interazioni è molto confusionario, ed è qui che entra in gioco il lavoro svolto durante questo tirocinio. Di seguito delle immagini che traducono tutto quello che è stato appena spiegato.
+ comunica con lo statusdown-service questo avvenimento (questa è la comunicazione usata per testare il tracing RMQ). In parallelo, il condition service manda il messaggio ricevuto dallo statusup al gatescheduler service, che si occuperà infine di passare il messaggio nell'altro riquadro. Come potete notare, spiegare tutte queste interazioni è molto confusionario, ed è qui che entra in gioco il lavoro svolto durante questo tirocinio. Di seguito delle immagini che traducono tutto quello che è stato appena spiegato.
 \begin{figure}[H]
     \includegraphics[scale=0.21]{49.png}
     \centering
@@ -398,26 +398,28 @@ Qui si è semplicemente tracciato tutte le comunicazione che esegue il gates ser
 \end{figure}
 \newpage
 \section{Quarto sprint}
-Questo è stato lo sprint finale; in questa fase si è occupato di rifinire un pò tutte le implementazioni di tracing. Si è partiti da un piccolo refactoring per aggiungere tutti i nuovi metodi alla libreria di supporto Utils dello ZDM\cite{zdm:1} ; poi si è passato alla stesura della documentazione relativa all' architettura dell'implementazione.\\Si è conclusa con la fase di testing per il deployment de servizio e conclusione del tirocinio.
-\subsection{Documentazione}
-Per scrivere la documentazione si è prima pensato a chi fosse rivolta. La documentazione è ai programmatori che devono estendere il servizio di tracing a nuovi micro servizi. Come sappiamo un architettura a micro servizi è molto dinamica, il che è sia un vantaggio che non. Difatti l' applicazione puó crescere aggiungendo micro servizi e se si aggiunge un micro servizio bisogna anche implementare il sistema di tracing su quel micro servizio.
-Dunque la documentazione è stata scritta con questo presupposto, ovvero pensata per i programmatori che dovranno tracciare nuovi micro servizi o anche modificare il tracing di quelli gia tracciati.\\
-La prima parte riguarda l'architettura generale del sistema, le librerie utilizzate e le migliori pratiche da utilizzare. Poi si passa a spiegare in particolare come tracciare i 3 tipi di comunicazione dello ZDM\cite{zdm:1}, ovvero richieste HTTP, messaggi RMQ e richieste ai database. 
-Infine una breve guida su come creare nuovi trace e span senza dover per forza utilizzare i metodi messi a disposizione dal sistema sviluppato dal tirocinante, in modo da risultare in un tracing più preciso possibile. 
+Questo è stato lo sprint finale; in questa fase si è occupato di rifinire un pò tutte le implementazioni di tracing. Si è partiti da un piccolo refactoring per aggiungere tutti i nuovi metodi alla libreria di supporto Utils dello ZDM\cite{zdm:1} ; poi si è passato alla stesura della documentazione relativa all' architettura dell'implementazione.\\Si è conclusa con la fase di testing per il deployment del sistema e conclusione del tirocinio.
+
 
 \subsection{Refactoring}
-Questo task riguardava la rifinitura di alcuni punti lasciati in sospeso del sistema di implementazione, ad esempio includere nelle librerie dello ZDM\cite{zdm:1} alcuni metodi per l'inizializzazione del client jaeger, il settaggio di tutte le variabili d'ambiente di tutti i micro servizi relativi alla configurazione di jaeger.
+Questo task riguardava la rifinitura di alcuni punti lasciati in sospeso del sistema di implementazione, ad esempio includere nelle librerie dello ZDM\cite{zdm:1} alcuni metodi per l'inizializzazione del client jaeger, il settaggio di tutte le variabili d' ambiente di tutti i micro servizi relativi alla configurazione di jaeger.
 Insomma una specie di revisione del lavoro svolto fin'ora.
 Prima di tutto si è scritta una libreria apposita per tutti i metodi relativi al tracing; questa libreria, chiamata semplicemente "tracing", 
 è stata inserita nella librearia "Utils" dello ZDM\cite{zdm:1}.
-Prevede principalmente i metodi per creare un nuovo tracer con le impostazioni del client jaeger prese dalle variabili d'ambiente
+Prevede principalmente i metodi per creare un nuovo tracer con le impostazioni del client jaeger prese dalle variabili d' ambiente.
 Poi si è anche effettuato un refactoring del tracing dello scambio di messaggi RMQ; infatti si è reso più simile a quello delle
- richieste Http per quanto riguarda i subscriber. Quando un subscriber si registra, deve definire un proprio "server" che è in ascolto sui messaggi, ebbene esattamente come per i server delle richieste http (4.4.2) si
+ richieste Http per quanto riguarda i subscriber: quando un subscriber si registra, adesso deve definire un proprio "server" che è in ascolto sui messaggi, ebbene esattamente come per i server delle richieste http (4.4.2) si
 è creata una funzione da inserire nelle opzioni "ServerBefore" che estrae il contesto contenuto nel messaggio (il delivery)
  e lo inserisce nel contesto passato alla catena di funzioni che si occupano del messaggio.
  \\Per ultimo si è effettuato un refactoring del tracing delle richieste ai database; come il lettore può ricordare dal capitolo 5 sezione 5.3.1, il tracing delle richieste database avveniva attacondosi alla struture del DatabaseLogger. Il problema è che 
  questa strutture serve esclusivamente per il logging delle query effettuate e non del tracing, dunque usarlo per ambo gli scopi (tracing e logging) non è una scelta giusta. Anche perchè il logging delle richieste ai database sono lunghi,sporcano molto il log del servizio rendendo più macchinoso trovare un eventuale errore.
  Dunque si è creata una struttura a parte, un nuovo QueryHook chiamato (con molta fantasia) DatabaseTracer; anch'essa implementa i due metodi after e before query, e in questo modo si è separato il meccanismo di tracing e quello di logging.
+ 
+ \subsection{Documentazione}
+ Per scrivere la documentazione si è prima pensato a chi fosse rivolta. La documentazione è ai programmatori che devono estendere il servizio di tracing a nuovi micro servizi. Come sappiamo un architettura a micro servizi è molto dinamica, il che è sia un vantaggio che non. Difatti l' applicazione puó crescere aggiungendo micro servizi e se si aggiunge un micro servizio bisogna anche implementare il sistema di tracing su quel micro servizio.
+ Dunque la documentazione è stata scritta con questo presupposto, ovvero pensata per i programmatori che dovranno tracciare nuovi micro servizi o anche modificare il tracing di quelli gia tracciati.\\
+ La prima parte riguarda l'architettura generale del sistema, le librerie utilizzate e le migliori pratiche da utilizzare. Poi si passa a spiegare in particolare come tracciare i 3 tipi di comunicazione dello ZDM\cite{zdm:1}, ovvero richieste HTTP, messaggi RMQ e richieste ai database. 
+ Infine una breve guida su come creare nuovi trace e span senza dover per forza utilizzare i metodi messi a disposizione dal sistema sviluppato dal tirocinante. 
 
 
 \subsection{Testing}
@@ -427,11 +429,11 @@ Prima del deployment, però , si è dovuto testare tutti i microservizi in local
  dopo aver sistemato i file di test Go, dopo essersi assicurati che tutti i servizi passassero tutti i test, si è potuto effettuare il deployment di questi servizi in testing.\\ 
 Non è stato un testing senza alcun problema, difatti c'è stato qualche intoppo: qualche servizio non riportava correttamente gli span. 
 Dopo aver visto i file di log dei vari container dei servizi in testing si è subito notato che c'è stato un problema nel caricare la versione giusta di alcuni microserivi; dopo aver risolto questo piccolo difetto, il sistema sviluppato fino a questo momento funzionava senza problemi.
-In questa fase non ci si è solo assicurati che il sistema funzioni correttamente ma ci si è anche domandati quali aspetti si potevano migliorare. Innanzi tutto , il supervisore ha fatto notare che alcuni trace erano superflui, quelli che riguardavano alcune query database che apparivano come singoli span, poiché erano richieste che partivano senza uno span radice, dunque apparivano come singoli span, i quali anche 
+\\In questa fase non ci si è solo assicurati che il sistema funzioni correttamente ma si è anche domandato quali aspetti si potessero migliorare. Innanzi tutto , il supervisore ha fatto notare che alcuni trace erano superflui, quelli che riguardavano alcune query database che apparivano come singoli span, poiché erano richieste che partivano senza uno span radice, dunque apparivano come singoli span, i quali anche 
 se potevano contenere informazioni utili, non avevano informazioni su quale matedo le ha invocate.
 \cite{opentracing:1}
 \chapter{Conclusione}
-Adesso la conclusione, in questo capitolo si tireranno le somme, si commenterà in generale il lavoro svolto, se è stato soddisfacente, se si è raggiunto l' obbiettivo del tirocinio e si discuteranno delle nuove skill acquisite dal tirocinante.
+In questo capitolo si tireranno le somme, si commenterà in generale il lavoro svolto, se è stato soddisfacente, se si è raggiunto l' obbiettivo del tirocinio e si discuteranno delle nuove skill acquisite dal tirocinante.
 \section{Skill acquisite}
 Tra la varie skill eseguite si riportano quelle più rilevanti.
 \begin{itemize}
