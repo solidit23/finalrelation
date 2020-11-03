@@ -65,17 +65,17 @@ La relazione proseguirà in questo modo:
 
 \chapter{Basi di Partenza}
 \section{Scelta del tirocinio}
-Prima di tutto perché si è scelto di svolgere un tirocinio anziché una classica tesi triennale. Il primo motivo è semplicemente perché le idee di un possibile argomento
-per una tesi scarseggiavano; il secondo motivo e più importante motivo è che l' autore cercava qualche progetto pratico che lo potesse introdurre in un ambiente lavorativo, per affinare le sue abilità pratiche. Dunque l' autore ha iniziato a cercare tra i vari tirocini proposti nell' apposito albo. Non soddisfatto delle varie proposte, e notato che quasi tutti fosserò già occupati, si è preferito chiedere direttamente al Professore Daniele Mazzei, il quale nelle lezioni del corso di Programmazione di Interfacce ha introdotto agli studenti l'azienda di Zerynth della quale è co-fondatore; ha invitato a lezione 
+Innanzitutto diamo motivazione della scelta di svolgere un tirocinio anziché una classica tesi triennale.In primo luogo è semplicemente perché le idee di un possibile argomento
+per una tesi scarseggiavano; ma il motivo principale è che l' autore cercava qualche progetto pratico che lo potesse introdurre in un ambiente lavorativo, per affinare le sue abilità pratiche. Dunque l' autore ha iniziato a cercare tra i vari tirocini proposti nell' apposito albo. Non soddisfatto delle varie proposte, e notato che quasi tutti fosserò già occupati, si è preferito chiedere direttamente al Professore Daniele Mazzei, il quale nelle lezioni del corso di Programmazione di Interfacce ha introdotto agli studenti l'azienda di Zerynth della quale è co-fondatore; ha invitato a lezione 
 il CTO dell' azienda Giacomo Baldi per discutere del lavoro svolto da Zerynth ed di eventuali occasioni di tirocini. Dunque l'autore ha scritto al professore per dichiarare il suo interesse per un eventuale tirocinio, e dopo un breve colloquio con G.Baldi è stato proposto questo tirocinio sullo sviluppo di un sistema di tracing per architettura a micro servizi.
 \section{Preparazione autonoma}
-Dopo essermi incontrato con i miei tutori aziendali, ci siamo accordati su cosa studiare autonomamente per prepararmi allo sviluppo del sistema.
-Prima di tutto, si è imparato autonomamente il linguaggio di programmazione Golang poiché è il linguaggio utilizzato per lo ZDM\cite{zdm:1}.
+Dopo essermi incontrato con i miei tutori aziendali, ci siamo accordati su cosa studiare autonomamente per prepararsi allo sviluppo del sistema.
+Prima di tutto, ci si è focalizzato  sullo studio autonomo del linguaggio di programmazione Golang poiché è il linguaggio utilizzato per lo ZDM\cite{zdm:1}.
 Poi si è proseguito con lo studio delle librerie di opentracing, una libreria open-source che permette di tracciare micro servizi.
 Questo studio è stato effettuato tramite un tutorial\cite{opentracing:2} messo a disposizione da uno degli sviluppatori della libreria. Dopo di che, per avere un' idea piú chiara su come funzioni lo ZDM,
 ho studiato autonomamente la libreria di Go kit\cite{go:2}, una libreria di Golang che permette una facilitata gestione dei micro servizi.
 Assieme ad opentracing si è anche studiato le librerie di Jaeger\cite{jaeger:1}, uno strumento che serve in parallelo con opentracing.
-Di tutte queste tecnologie ne parleremo nel seguente capitolo.
+Le tecnologie menzionate verranno approfondite nel capitolo seguente.
 \chapter{Tecnologie utilizzate}
 \section{Golang}
 Golang\cite{go:1} è il linguaggio utilizzato per lo sviluppo dello ZDM. Dato che questo sistema di tracing va instrumentato nel codice dell'applicazione, si è dovuto per forza utilizzare le librerie
@@ -101,10 +101,10 @@ Nella figura 3.1 possiamo vedere un' idea concettuale di come questi due oggetti
 Questa tecnologia è stata scelta sin dall' inizio dai tutori aziendali.
 \section{Jaeger}
 
-Jaeger\cite{jaeger:1} è una libreria open-source che offre un sistema per la raccolta, storage e visualizzazione dei trace e degli span.
+Jaeger\cite{jaeger:1} è uno strumento offre un sistema per la raccolta, storage e visualizzazione dei trace e degli span.
 È formato da diversi componenti: jaeger-client,jaeger-collector, jaeger-agent, jaeger-query e database.
 \begin{itemize}
-    \item{\textbf{Jaeger-client}} è instrumentato nel codice dell' applicazione, si occupa di mandare gli span allo jaeger-agent attraverso il protocollo UDP.
+    \item{\textbf{Jaeger-client}} è configurato nel codice dell' applicazione, si occupa di mandare gli span allo jaeger-agent attraverso il protocollo UDP.
     \item {\textbf{Jaeger-agent}} riceve gli span dallo jaeger-client e li manda allo jaeger-collector secondo un criterio definito dal client. Gira in un container separato da quelli dell'applicazione.
     \item {\textbf{Jaeger-collector}} riceve gli span dallo jaeger-agent e si li mette in un database.
     \item {\textbf{Jaeger-query}} raccoglie gli span nel database e li mostra nella GUI di jaeger.
@@ -126,7 +126,7 @@ Di seguito possiamo vedere un' immagine dell'interfaccia grafica di jaeger.
     
 \end{figure}
 
-In oltre, dopo aver registrato qualche span, jaeger si occupa anche di costruire un grafo che rappresenta quali micro servizi comunicano tra loro.
+Inoltre, dopo aver registrato qualche span, jaeger si occupa anche di costruire un grafo che rappresenta quali micro servizi comunicano tra loro.
 
 \begin{figure}[H]
     \includegraphics[scale=0.4]{grafo.jpg}
@@ -139,10 +139,10 @@ Go kit\cite{go:2} è una libreria Golang che è stata utilizzata per lo sviluppo
 per il tracing delle richieste HTTP tra i micro servizi. 
 % TODO Cambia git in Gogs
 \section{Gogs}
-Gogs\cite{gogs:1} è una piattaforma che hosta un servizio di tipo git. Quindi similmente a Github facilita lo sviluppo di un software quando si è tante persone a svilupparlo. Lo zdm è stato sviluppato attraverso questa piattaforma, dunque è stato garantito l' accesso al tirocinante e si è creato un nuovo branch dove poter modificare il codice. 
+Gogs\cite{gogs:1} è una piattaforma che ospita un servizio di tipo git. Quindi similmente a Github facilita lo sviluppo di un software quando si è tante persone a svilupparlo. Lo zdm è stato sviluppato attraverso questa piattaforma, dunque è stato garantito l' accesso al tirocinante e si è creato un nuovo branch dove poter modificare il codice. 
 
 \section{Docker}
-Docker\cite{docker:1} è una piattaforma che permette di creare container (spazi virtuali) dove poter girare programmi in modo sicuro, in modo tale che se tale programma presenta dei problemi non si riperquotono al di fuori del container. L' architettura dello ZDM\cite{zdm:1} prevede che ogni servizio giri nel proprio container; lo stesso si è deciso per Jaeger, dato che è un servizio esso stesso che comunica con i micro servizi.
+Docker\cite{docker:1} è una piattaforma che permette di creare container (spazi virtuali) dove poter girare programmi in sicurezza, in modo tale che se tale programma presenta dei problemi non si riperquotono al di fuori del container. L' architettura dello ZDM\cite{zdm:1} prevede che ogni servizio giri nel proprio container; lo stesso si è deciso per Jaeger, dato che è un servizio esso stesso che comunica con i micro servizi.
 \section{Easyredmine}
 Easyredmine\cite{easyredmine:1} è una piattaforma online che rende più facile e intuitiva la gestione di lavoro degli sviluppatori di Zerynth, secondo le regole dello sviluppo AGILE.
 
@@ -160,7 +160,7 @@ tecnologie menzionate nel capitolo precedente.
 \section{Main dei servizi e Client Jaeger}
 Per prima cosa viene inizializzato il tracer nel main ( il file go principale del servizio). Questo tracer permette di creare gli span, viene settato come Tracer Globale attraverso il metodo della libreria di opentracing "setGlobalTracer()"; settandolo come tracer globale, si è in grado di accedervi in qualunque "zona" del codice del microservizio, e questo è fondamentale, in quanto ci permette di alleggerire
 di molto il codice di ogni servizio, evitando di trascinare dietro il tracer. Per inizializzare il tracer si è creata una funzione che si occupa di settare le impostazioni corrette dello jaeger client e restituisce il nuovo tracer. Si è deciso di mettere le impostazioni
-di Jaeger come variabili d'ambiente per ogni microservizio. Queste variabili d'ambiente servono per sceglier la configurazione dello jaeger client, in particolare del \textit{sampler}: il sampler è l' oggetto che definisce in che modo vengono mandati gli span allo jaeger collector. Ne esistono di più tipi, per ragioni di testing e debugging si è scelto un sampler probabilistico
+di Jaeger come variabili d'ambiente per ogni microservizio. Queste variabili d'ambiente servono per scegliere la configurazione dello jaeger client, in particolare del \textit{sampler}: il sampler è l' oggetto che definisce in che modo vengono mandati gli span allo jaeger collector. Ne esistono di più tipi, per ragioni di testing e debugging si è scelto un sampler probabilistico
  di parametro 1: un sampler che spedisce tutti gli span perché il parametro 1 equivale alla percentuale di span spediti (1=100\%). 
 \begin{figure}[H]
     \includegraphics[scale=0.5]{envvar.png}
@@ -196,8 +196,7 @@ del contesto tra gli attributi della richiesta. Quindi per propagare il contesto
 Il discorso è un po' più complicato per i servizi che si comportano come server, ovvero quelli che ricevono le richieste Http. 
 Ogni servizio "server" crea nel suo main un HttpServerHandler: un oggetto che si mette in ascolto su una determinata porta 
 ( definita dalle variabili d'ambiente) per servire le richieste Http. Quando viene creato quest'oggetto viene invocata una 
-funzione che lo inizializza secondo determinate opzioni; tra queste opzioni 
-vi è una in particolare che è stata utilizzata per estrarre il contesto dalla richiesta Http: le opzioni ServerBefore.
+funzione che lo inizializza secondo determinate opzioni; una in particolare è stata utilizzata per estrarre il contesto dalla richiesta Http: le opzioni ServerBefore.
  Come si può intuire dal nome, sono una lista di funzioni che vengono eseguite prima del consumo della richiesta http, quindi appena
   arriva la richiesta il server esegue le funzioni contenute nelle opzioni ServerBefore. Tra queste funzioni
    si è inserita una funzione della libreria Go kit tracing, chiamta HTTPToContext; quello che fa è proprio estrarre il contesto
@@ -211,12 +210,12 @@ endpoint si chiama una funzione della libreria Go kit tracing (la stessa libreri
 Il secondo tipo di comunicazione che si è tracciato sono lo scambio di messaggi Rabbit Message Queue. Il protocollo prevede un publisher e un subscriber, il publisher pubblica i messi su un oggetto chiamato exchange che smista i messaggi nelle code al quale è connesso. I messaggi vengono smistati in base al loro interesse, chiamato "topic". Il subscriber si può sottoscrivere ad una coda specificando il topic a cui è interessato. Quando nella coda è presenta un messaggio con quel topic, il subscriber viene avvisato e preleva il messaggio. I messaggi si chiamano delivery e possiedono diversi attributi,tra i quali degli headers simili a quelli delle richieste Http.
 Il tracing di questo scambio è stato possibile grazie alla libreria amqptracer, che contiene i metodi per inserire ed estrarre il contesto dal messaggio nei e dai suoi header.
 \subsection{Tracing del Publisher}
-Ogni qual volta che un servizio vuole pubblicare un messaggio su una coda, dopo aver configurato il publisher nel suo main, deve chiamare il metodo " publish " del publisher. A questo metodo va passato un delivery che verrà pubblicato sulla coda ( impostata con l'inizializzazione del publisher). Per rendere possibile la propagazione del contesto, si è aggiunto a questo metodo un nuovo argomento oltre al messaggio: un contesto. In questo modo il metodo publish, prima di pubblicare il messaggio sulla coda, inserisce negli headers del messaggio lo span contenuto nel contesto passato al metodo publish.
+Ogni qual volta che un servizio vuole pubblicare un messaggio su una coda, dopo aver configurato il publisher nel suo main, deve chiamare il metodo "publish" del publisher. A questo metodo va passato un delivery che verrà pubblicato sulla coda ( impostata con l'inizializzazione del publisher). Per rendere possibile la propagazione del contesto, si è aggiunto a questo metodo un nuovo argomento oltre al messaggio: un contesto. In questo modo il metodo publish, prima di pubblicare il messaggio sulla coda, inserisce negli headers del messaggio lo span contenuto nel contesto passato al metodo publish.
 L' inserimento del contesto (che in questo caso è uno spanContext e non un contesto vero e proprio) viene fatto attraverso una funzione della libreria amqptracer, amqptracer.Inject, che prende uno span e un delivery, e inserisce lo spanContext nel delivery.
 \subsection{Tracing del Subscriber}
 Per il tracing del subscriber si è aggiunta una funzione al pacchetto "queue" delle Utils dello ZDM\cite{zdm:1}. Questa funzione prende come argomento la funzione che si occupa del consumo del messaggio, la handleFunc:
 in questo modo crea uno span prima del consumo del messaggio, lo inserisce nel messaggio e poi chiama la handleFunc e infine termina lo span. Questo procedimento viene fatto nella funzione ConsumeLoop del subscriber, ovvero il codice che si mette in ascolto di nuovi messaggi nella coda.
-\\Oltre a questo meccanismo, similmente come per il tracing dei server Http, bisogna impostare tra le opsioni ServerBefore ( in questo caso sono le funzioni che vengono eseguite prima della ricezione di un messaggio) una funzione creata dal tirocinante; questa funzione non fa altro che creare uno span partendo dal contesto presente nel messaggio, ed inserirlo nella catena di funzioni che si 
+\\Oltre a questo meccanismo, similmente come per il tracing dei server Http, bisogna impostare tra le opzioni ServerBefore ( in questo caso sono le funzioni che vengono eseguite prima della ricezione di un messaggio) una funzione creata dal tirocinante; questa funzione non fa altro che creare uno span partendo dal contesto presente nel messaggio, ed inserirlo nella catena di funzioni che si 
 occupano del consumo del messaggio. Anche in questo caso viene poi creato l' endopoint,  e si utilizza una funzione per impostare il nome dello span in base all' operazione gestita dall' endpoint.
 
 \newpage
@@ -342,7 +341,7 @@ Di seguito riporto la stessa immagine dello schema logico delle interazioni dell
 
 Avendo a questo punto già sviluppato le librerie e le migliori pratiche per tracciare le comunicazioni dello ZDM\cite{zdm:1}, quello che è bastato fare è stato applicare quello che è già stato applicato per gli esempi dello sprint precedente.
 \\ La difficoltà si è spostata dal capire come implementare in modo generale il tracing a una comunicazione tra micro servizi, a dover usare quello che si è sviluppato su tutti i micro servi che ancora non sono stati tracciati.\\
-In merito alla figura 4.7, farò  riferimento ad ogni riquadro e descriverò brevemente quali tipi di comunicazioni avvengono tra i micro servizi interessati.
+In merito alla figura 4.7, si farà riferimento ad ogni riquadro e si descriverà brevemente quali tipi di comunicazioni avvengono tra i micro servizi interessati.
 
 \subsection{Riquadro 1}
 Queste comunicazioni nascono quando un device collegato allo ZDM\cite{zdm:1} invia dei dati a quest'ultimo; i servizi che per primi ricevono questi dati
@@ -370,7 +369,7 @@ Quest' ultimo in seguito a questa richiesta, esegue una database query; questa d
     \caption{Trace della comunicazione tra ingestion service,wfd service e tsmanager service. Avviene quando un device manda un messaggio per ottenere l'account e lo spazio di lavoro dell' utente.}
 \end{figure}
 \subsection{Riquadro 2}
-Ora le comunicazioni del riquadro numero 2. Dopo che il gatescheduler riceve i dati dai device, li smista in due code diverse: una per i dati di tipo "\textit{data}" e una per i dati di tipo "\textit{condition}". I entrambi vengono poi prelevati dal whpusher-service (webhook), i secondi anche dal conditionworker-service se è stato settato un  allarme per alcuni dati. Il whpusher poi fa una richiesta al tsamanager, il condition worker invece manda i dati all' emailpusher-service, che si occupa di avvisare l'utente tramite email di alcuni dati che rispettano una certa condizione.
+Ora le comunicazioni del riquadro numero 2. Dopo che il gatescheduler riceve i dati dai device, li smista in due code diverse: una per i dati di tipo "\textit{data}" e una per i dati di tipo "\textit{condition}". I primi vengono poi prelevati dal whpusher-service (webhook), i secondi anche dal conditionworker-service se è stato settato un  allarme per alcuni dati. Il whpusher poi fa una richiesta al tsamanager, il condition worker invece manda i dati all' emailpusher-service, che si occupa di avvisare l'utente tramite email di alcuni dati che rispettano una certa condizione.
 \\Durante il lavoro si è distinto questi due flussi come il data flow e il condition flow. Di seguito delle immagini che raffigurano il risultato ottenuto.
 
 \begin{figure}[H]
@@ -433,7 +432,7 @@ Dopo aver visto i file di log dei vari container dei servizi in testing si è su
 se potevano contenere informazioni utili, non avevano informazioni su quale matedo le ha invocate.
 \cite{opentracing:1}
 \chapter{Conclusione}
-In questo capitolo si tireranno le somme, si commenterà in generale il lavoro svolto, se è stato soddisfacente, se si è raggiunto l' obbiettivo del tirocinio e si discuteranno delle nuove skill acquisite dal tirocinante.
+Icdn questo capitolo si tireranno le somme, si commenterà in generale il lavoro svolto, se è stato soddisfacente, se si è raggiunto l' obbiettivo del tirocinio e si discuteranno delle nuove skill acquisite dal tirocinante.
 \section{Skill acquisite}
 Tra la varie skill eseguite si riportano quelle più rilevanti.
 \begin{itemize}
