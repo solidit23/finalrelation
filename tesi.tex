@@ -234,13 +234,13 @@ A livello di servizio, bisogna passare il contesto che si vuole tracciare alla r
 Le prime due settimane del tirocinio sono state di preparazione. Dopo essersi recati in ufficio per incontrare i tutori aziendali, si è discusso
 del lavoro da fare e come farlo; si è introdotto il tirocinante nell'ambiente lavorativo e gli si è spiegato come lavorano.\\
 Zerynth ha scelto, da qualche anno, il protocollo di sviluppo AGILE: lavorano in sprint di 2 settimane, ovvero: all'inizio dello sprint (o alla fine del precedente) programmano i propri "task" da svolgere per lo sprint; un task può essere un qualunque tipo di lavoro, che viene stimato da chi se ne occupa in un quantitativo di ore. Quindi si cerca di finire quel task nel tempo stimato, riportando giornalmente sulla piattaforma di Easyredmine quanto tempo si è lavorato a quel task.
-Non finire un task nel tempo stimato non è necessariamente un problema; infatti questa stima è solamente una stima ottimistica. Inoltre ogni task ha una priorità ed è specificato se un task è "rimandabile", nel senso che si può rimandare allo sprint successivo, oppure "non rimandabile", ovvero un task con assoluta urgenza. Inoltre, secondo il metodo di sviluppo agile,  si lavora per raggiungere una \textit{"milestone"}, ovvero un obbiettivo che si vuole raggiungere entro un determinato numero di sprint. Per esempio il sistema di tracing sviluppato da questo tirocinio è stato inserito proprio nel milestone più  vicino.\\
+Non finire un task nel tempo stimato non è necessariamente un problema; infatti questa stima è solamente una stima ottimistica. Inoltre ogni task ha una priorità ed è specificato se un task è "rimandabile", nel senso che si può rimandare allo sprint successivo, oppure "non rimandabile", ovvero un task con assoluta urgenza. Inoltre, secondo il metodo di sviluppo agile,  si lavora per raggiungere una \textit{"milestone"}, ovvero un obbiettivo da completare entro un determinato numero di sprint. Per esempio il sistema di tracing sviluppato da questo tirocinio è stato inserito proprio nel milestone più  vicino.\\
 Quindi ci si è adattati a questo tipo di lavoro; si è inserito il tirocinante nella piattaforma e si è iniziato ad assegnargli task.\\
 Da ora in poi questo capitolo sarà diviso in sezioni, dove ogni sezione corrisponde ad uno sprint di due settimane.
 \\Questo capitolo è stato scritto come una specie di "diario" del lavoro svolto, quindi descrive sistema sviluppato da zero, dunque ci sono delle divergenze con l'architettura descritta nel capitolo 4, poichè quella è il risultato finale del sistema implementato, mentre in questo capitolo viene descritto il sistema durante la sua evoluzione.
 \section{Primo sprint}
 
-Dunque nel primo sprint si è provveduto a preparare l'ambiente di lavoro sul PC del tirocinante, ovvero con l'aiuto del responsabile dello sviluppo software si è installato lo ZDM\cite{zdm:1}. Dopo di che si è passato a svolgere il primo task: studiare il progetto di opentracing, in particolare
+Nel primo sprint si è provveduto a preparare l'ambiente di lavoro sul PC del tirocinante, ovvero con l'aiuto del responsabile dello sviluppo software si è installato lo ZDM\cite{zdm:1}. Dopo di che si è passato a svolgere il primo task: studiare il progetto di opentracing, in particolare
 si è seguito un tutorial sviluppato da uno dei creatori del progetto. Dopo aver preso dimestichezza con il progetto di opentracing, si è imparato i rudimenti del Go kit e capito come funzionano i micro servizi dello ZDM che usano questa libreria.
 In seguito al completamento di questi due task, si è passato ad un primo approccio di tracing dello ZDM.
 Insieme al supervisore si è studiato lo schema delle interazioni dei micro servizi dello ZDM\cite{zdm:1} per decidere su quali micro servizi iniziare lo sviluppo del sistema di tracing.
@@ -276,7 +276,7 @@ Questa implementazione verrà poi cambiata nella build finale del sistema, come 
 Si è deciso che i primi micro servizi da tracciare fossero il login-service, l'accusr-service e wfd-service. Le operazioni coperte da questo trace sono quelle iniziali, ovvero di login, ottenimento dell'account dell'utente e del suo spazio di lavoro.
 Essendo il primo trace realizzato per lo ZDM\cite{zdm:1} si è proceduto per gradi. Come prima cosa si è capito che tipo di comunicazione fosse: una richiesta da parte del login service al accusr e wfd service tramite HTTP;
 opentracing prevede un tracciamento di questo tipo attraverso gli header della richiesta http: gli span del login service che rappresentano le richieste agli altri due micro servizi vengono inseriti nell' header HTTP sotto forma di mappa chiave valore.
-Dall'altra parte i micro servizi che ricevono la chiamata riescono a estrarre dagli header della richiesta il contesto dello span presente negli header, e dunque creare un nuovo span figlio di esso per ottenere una continuità tra le chiamate e costruire una specie di albero di richieste.
+Dall'altra parte i micro servizi che ricevono la chiamata riescono a estrarre dagli header della richiesta il contesto dello span, e dunque creare un nuovo span figlio di esso per ottenere una continuità tra le chiamate e costruire una specie di albero di richieste.
 Dopo una prima implementazione "hardcodata"\footnote[1]{Quando un codice è scritto in modo brutto, per vedere se funziona} , scrivendo il codice per una grezza richiesta http nello ZDM\cite{zdm:1} e verificando che funzioni correttamente si è passato poi a creare una versione universale per tutte le richieste HTTP, modificando la librearia dello ZDM\cite{zdm:1} chiamata "Utils" che si occupa dello scambio di messaggi HTTP.
 \begin{figure}[H]
     \includegraphics[]{42.png}
@@ -331,7 +331,7 @@ Il risultato ottenuto è stato quello di poter visualizzare gli span che rappres
 
 \subsection{Implementazione del tracing per altri micro servizi}
 Dopo aver affinato l' implementazione di  opentracing per i 3 tipi di comunicazione dei micro servizi dello ZDM\cite{zdm:1}, si è passati ad estenderla a ad altri micro servizi;
-le operazione che si sono tracciate in questa fase sono relative allo scambio dei dati dei device connessi allo ZDM\cite{zdm:1} tra i micro servizi; tutta questa operazione è una combinazione di richieste HTTP, scambio di messaggi RMQ e richieste ai database, quindi senza entrare troppo nei dettagli ecco alcune immagini esplicative delle interazioni e dei risultati ottenuti.\\
+le operazione che si sono tracciate in questa fase sono relative allo scambio dei dati dei device connessi allo ZDM\cite{zdm:1} tra i micro servizi; tutta questa operazione è una combinazione di richieste HTTP, scambio di messaggi RMQ e richieste ai database. Quindi senza entrare troppo nei dettagli ecco alcune immagini esplicative delle interazioni e dei risultati ottenuti.\\
 Di seguito riporto la stessa immagine dello schema logico delle interazioni dello ZDM\cite{zdm:1}, nel quale si è evidenziato quali servizi si sono tracciati.
 \begin{figure}[H]
     \includegraphics[scale=0.3]{61.jpg}
@@ -397,7 +397,9 @@ Qui si è semplicemente tracciato tutte le comunicazione che esegue il gates ser
 \end{figure}
 \newpage
 \section{Quarto sprint}
-Questo è stato lo sprint finale; in questa fase si è occupato di rifinire un pò tutte le implementazioni di tracing. Si è partiti da un piccolo refactoring per aggiungere tutti i nuovi metodi alla libreria di supporto Utils dello ZDM\cite{zdm:1} ; poi si è passato alla stesura della documentazione relativa all' architettura dell'implementazione.\\Si è conclusa con la fase di testing per il deployment del sistema e conclusione del tirocinio.
+Questo è stato lo sprint finale; in questa fase si è occupati di rifinire un pò tutte le implementazioni di tracing. Si è partiti da un piccolo refactoring per aggiungere tutti i 
+nuovi metodi alla libreria di supporto Utils dello ZDM\cite{zdm:1}.\\
+Poi si è passato alla stesura della documentazione relativa all' architettura dell'implementazione.\\Si è conclusa con la fase di testing per il deployment del sistema e conclusione del tirocinio.
 
 
 \subsection{Refactoring}
@@ -407,15 +409,16 @@ Prima di tutto si è scritta una libreria apposita per tutti i metodi relativi a
 è stata inserita nella librearia "Utils" dello ZDM\cite{zdm:1}.
 Prevede principalmente i metodi per creare un nuovo tracer con le impostazioni del client jaeger prese dalle variabili d' ambiente.
 Poi si è anche effettuato un refactoring del tracing dello scambio di messaggi RMQ; infatti si è reso più simile a quello delle
- richieste Http per quanto riguarda i subscriber: quando un subscriber si registra, adesso deve definire un proprio "server" che è in ascolto sui messaggi, ebbene esattamente come per i server delle richieste http (4.4.2) si
+ richieste Http per quanto riguarda i subscriber: quando un subscriber si registra, adesso deve definire un proprio "server" che è in ascolto sui messaggi.\\
+Esattamente come per i server delle richieste http (4.4.2) si
 è creata una funzione da inserire nelle opzioni "ServerBefore" che estrae il contesto contenuto nel messaggio (il delivery)
  e lo inserisce nel contesto passato alla catena di funzioni che si occupano del messaggio.
- \\Per ultimo si è effettuato un refactoring del tracing delle richieste ai database; come il lettore può ricordare dal capitolo 5 sezione 5.3.1, il tracing delle richieste database avveniva attacondosi alla struture del DatabaseLogger. Il problema è che 
- questa strutture serve esclusivamente per il logging delle query effettuate e non del tracing, dunque usarlo per ambo gli scopi (tracing e logging) non è una scelta giusta. Anche perchè il logging delle richieste ai database sono lunghi,sporcano molto il log del servizio rendendo più macchinoso trovare un eventuale errore.
+ \\Infine si è effettuato un refactoring del tracing delle richieste ai database. Come il lettore può ricordare dal capitolo 5 sezione 5.3.1, il tracing delle richieste database avveniva attacondosi alla struture del DatabaseLogger. Il problema è che 
+ questa struttura serve esclusivamente per il logging delle query effettuate e non del tracing, dunque usarlo per ambo gli scopi (tracing e logging) non è una scelta giusta. Anche perchè il logging delle richieste ai database sono lunghi e sporcano molto il log del servizio rendendo più macchinoso trovare un eventuale errore.
  Dunque si è creata una struttura a parte, un nuovo QueryHook chiamato (con molta fantasia) DatabaseTracer; anch'essa implementa i due metodi after e before query, e in questo modo si è separato il meccanismo di tracing e quello di logging.
  
  \subsection{Documentazione}
- Per scrivere la documentazione si è prima pensato a chi fosse rivolta. La documentazione è ai programmatori che devono estendere il servizio di tracing a nuovi micro servizi. Come sappiamo un architettura a micro servizi è molto dinamica, il che è sia un vantaggio che non. Difatti l' applicazione puó crescere aggiungendo micro servizi e se si aggiunge un micro servizio bisogna anche implementare il sistema di tracing su quel micro servizio.
+ La prima cosa presa in considerazione per scrivere la documentazione è stata  a chi fosse rivolta. La documentazione è ai programmatori che devono estendere il servizio di tracing a nuovi micro servizi. Come sappiamo un architettura a micro servizi è molto dinamica, il che è sia un vantaggio che non. Difatti l' applicazione puó crescere aggiungendo micro servizi e se si aggiunge un micro servizio bisogna anche implementare il sistema di tracing su quel micro servizio.
  Dunque la documentazione è stata scritta con questo presupposto, ovvero pensata per i programmatori che dovranno tracciare nuovi micro servizi o anche modificare il tracing di quelli gia tracciati.\\
  La prima parte riguarda l'architettura generale del sistema, le librerie utilizzate e le migliori pratiche da utilizzare. Poi si passa a spiegare in particolare come tracciare i 3 tipi di comunicazione dello ZDM\cite{zdm:1}, ovvero richieste HTTP, messaggi RMQ e richieste ai database. 
  Infine una breve guida su come creare nuovi trace e span senza dover per forza utilizzare i metodi messi a disposizione dal sistema sviluppato dal tirocinante. 
@@ -425,16 +428,16 @@ Poi si è anche effettuato un refactoring del tracing dello scambio di messaggi 
 Per la fase di testing si è eseguito il deployment dei servizi tracciati in questo tirocinio sulla versione di test dello ZDM\cite{zdm:1}.
  Da questa versione dello ZDM\cite{zdm:1} si sono eseguiti dei test per verificare il corretto funzionamento delle funzioni aggiunte al codice.\\
 Prima del deployment, però , si è dovuto testare tutti i microservizi in locale, eseguendo per ognuno lo script che fa partire tutti i test Go;
- dopo aver sistemato i file di test Go, dopo essersi assicurati che tutti i servizi passassero tutti i test, si è potuto effettuare il deployment di questi servizi in testing.\\ 
-Non è stato un testing senza alcun problema, difatti c'è stato qualche intoppo: qualche servizio non riportava correttamente gli span. 
+ dopo aver sistemato i file di test Go ed essersi assicurati che tutti i servizi passassero tutti i test, si è potuto effettuare il deployment di questi servizi in testing.\\ 
+Si sono però presentati alcuni intoppi: qualche servizio non riportava correttamente gli span. 
 Dopo aver visto i file di log dei vari container dei servizi in testing si è subito notato che c'è stato un problema nel caricare la versione giusta di alcuni microserivi; dopo aver risolto questo piccolo difetto, il sistema sviluppato fino a questo momento funzionava senza problemi.
-\\In questa fase non ci si è solo assicurati che il sistema funzioni correttamente ma si è anche domandato quali aspetti si potessero migliorare. Innanzi tutto , il supervisore ha fatto notare che alcuni trace erano superflui, quelli che riguardavano alcune query database che apparivano come singoli span, poiché erano richieste che partivano senza uno span radice, dunque apparivano come singoli span, i quali anche 
+\\In questa fase non ci si è solo assicurati che il sistema funzioni correttamente ma ci si è anche domandato quali aspetti si potessero migliorare. Innanzi tutto , il supervisore ha fatto notare che alcuni trace erano superflui, quelli che riguardavano alcune query database che apparivano come singoli span, poiché erano richieste che partivano senza uno span radice, dunque apparivano come singoli span, i quali anche 
 se potevano contenere informazioni utili, non avevano informazioni su quale matedo le ha invocate.
 \cite{opentracing:1}
 \chapter{Conclusione}
 Icdn questo capitolo si tireranno le somme, si commenterà in generale il lavoro svolto, se è stato soddisfacente, se si è raggiunto l' obbiettivo del tirocinio e si discuteranno delle nuove skill acquisite dal tirocinante.
 \section{Skill acquisite}
-Tra la varie skill eseguite si riportano quelle più rilevanti.
+Tra la varie skill acquisite si riportano quelle più rilevanti.
 \begin{itemize}
     \item[] \textbf{Git}: acquisita dimestichezza nell' uso dei comandi Git, e quindi anche di lavorare in un ambiente di sviluppo condiviso con più sviluppatori.
     \item[] \textbf{Sviluppo AGILE}: utilizzando i principi di questo metodo di lavoro , il tirocinante è riuscito ad adattarsi ad essi ed integrarsi nel flusso di lavoro dell'azienda, partecipando alle riunioni (sprint review) e discutendo del lavoro svolto e quello da completare.
@@ -445,10 +448,10 @@ Tra la varie skill eseguite si riportano quelle più rilevanti.
 \end{itemize}
 
 \section{Commenti sull'Ambiente Lavorativo}
-Sin dai primi contatti con l' azienda Zerynth / TOI srl il tirocinante ha subito avuto un impatto positivo. Si sono sempre dimostrati disponibili per ogni cosa.
-I primi giorni il tirocinante di si è recato in persona in ufficio e lavorato lì, soprattuto per discutere di come implementare il sistema e preparare l'ambiente di sviluppo; durante questo periodo è stato continuamente aiutato dai vari sviluppatori del team ZDM\cite{zdm:1} e messo a proprio agio.
-Dopo questa fase iniziale, il lavoro si è spostato principalmente a casa del tirocinante per via dell' emergenza sanitaria. Tuttavia queso non ha impattato troppo il lavoro svolto, in quanto al tirocinante è stato fornito modo di comunicare costantemente con il leader dello sviluppo software D. Neri, senza il quale questo progetto sarebbe stato molto più arduo da completare.
-Come mezzi di comunicazione si è usato Telegram,Discord, Meet, Slack, strumenti molto familiari al tirocinante quindi non hanno presentato alcun problema. C'è comunque il bisogno di riportare che il lavoro da casa non è efficiente tanto quanto quello in un ambiente lavorativo come quello dell' ufficio dell'azienda, dove il tirocinante sarebbe stato stimolato molto di più. 
+Sin dai primi contatti con l' azienda Zerynth / TOI srl il tirocinante ha subito avuto un impatto positivo. I miei supervisori si sono sempre dimostrati disponibili per ogni cosa.
+I primi giorni il tirocinante di si è recato in persona in ufficio e lavorato lì, soprattuto per discutere di come implementare il sistema e preparare l'ambiente di sviluppo. Durante questo periodo è stato continuamente aiutato dai vari sviluppatori del team ZDM\cite{zdm:1} e messo a proprio agio.
+Dopo questa fase iniziale, il lavoro si è spostato principalmente a casa del tirocinante per via dell' emergenza sanitaria, tuttavia queso non ha impattato troppo il lavoro svol. Al tirocinante è stato fornito modo di comunicare costantemente con il leader dello sviluppo software D. Neri, senza il quale questo progetto sarebbe stato molto più arduo da completare.
+Come mezzi di comunicazione si è usato Telegram,Discord, Meet, Slack, strumenti molto familiari al tirocinante quindi non hanno presentato alcun problema. C'è comunque il bisogno di riportare che il lavoro da casa non è efficiente tanto quanto quello in un ambiente lavorativo come quello dell' ufficio dell'azienda, dove il tirocinante sarebbe stato stimolato molto di più e ricevuto un aiuto molto più immediato. 
 \\ In ogni caso, l'esperienza lavorativa è stata senza dubbio positiva, e consiglierei ad un eventuale lettore in dubbio sul tirocinio, di optare per quest' azienda .
 
 
