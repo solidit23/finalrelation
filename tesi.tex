@@ -27,31 +27,30 @@
 \Titolo{Implementazione di un sistema di tracing\\
 per architetture a micro servizi}
 \Candidato[559556]{James Luigi Francario}
-\Relatore{Prof. Daniele Mazzei}
-\Relatore{Giacomo Baldi}
-\Relatore{Davide Neri}
+\Relatore{Dr. Daniele Mazzei}
+\Relatore{Dr. Giacomo Baldi}
 \Annoaccademico{2019-2020}
 \end{frontespizio}
 
 \tableofcontents
 
 \chapter{Introduzione}
-\section{}
+\section{Background}
 Il tirocinio si è  svolto presso l' azienda Zerynth con sede a Pisa , Largo Padre Renzo Spadoni 1.
 La durata del tirocinio è stata di circa due mesi, per un totale di circa 300 ore di lavoro.
-\\
+\\[12pt]
 L' obiettivo è stato quello di sviluppare un sistema di tracing dei micro servizi dello ZDM\cite{zdm:1} (Zerynth Device Manager), ovvero
 l' applicazione distribuita dell' azienda. Quest' applicazione permette agli utenti di gestire tutti i dispositivi che fanno parte di una rete del tipo
 Internet of Things (IoT).\\
 L' architettura del sistema \`e a micro servizi, dunque è formato da molti servizi di piccole dimensioni che comunicano tra loro attraverso richieste HTTP oppure,
-come vedremo in seguito, con uno scambio di messaggi. 
+come vedremo in seguito, con uno scambio di messaggi. \\[12pt]
 
-\section{}
+
 Il sistema di tracing \`e stato sviluppato da zero, ovvero non c'è stata alcuna base di partenza. Il lavoro è stato svolto in parziale autonomia,
 da casa, interrotto da qualche riunione svolta in ufficio per chiarire dubbi, tenere traccia del lavoro svolto e per partecipare alle riunioni del team di sviluppo dello ZDM\cite{zdm:1}.\\
 Il lavoro è stato seguito dal responsabile dello sviluppo software Davide Neri, con il quale si è tenuta una costante comunicazione per discutere del lavoro svolto e dei nuovi compiti da fare.
 
-\section{Organizzazione Relazione}
+\section{Organizzazione della Relazione}
 La relazione proseguirà in questo modo:
 \begin{itemize}
     \item Un breve capitolo che espone le basi di partenza
@@ -77,20 +76,30 @@ ho studiato autonomamente la libreria di Go kit\cite{go:2}, una libreria di Gola
 Assieme ad opentracing si è anche studiato le librerie di Jaeger\cite{jaeger:1}, uno strumento che serve in parallelo con opentracing.
 Le tecnologie menzionate verranno approfondite nel capitolo seguente.
 \chapter{Tecnologie utilizzate}
-\section{Golang}
+\textbf{Golang}\\
 Golang\cite{go:1} è il linguaggio utilizzato per lo sviluppo dello ZDM. Dato che questo sistema di tracing va instrumentato nel codice dell'applicazione, si è dovuto per forza utilizzare le librerie
-Golang di opentracing (sono disponibili in diversi linguaggi).
-\section{Opentracing}
+Golang di opentracing (sono disponibili in diversi linguaggi).\\[12pt]
+
+\textbf{Opentracing}\\
 Opentracing\cite{opentracing:1} è il cuore di questo progetto. È una libreria open-source sviluppata per il tracing dei micro servizi facenti parti di un' applicazione.
 Quello che permette di fare è di tracciare le chiamate e le operazioni dei micro servizi in modo facile e immediato.
-Questo lo fa attraverso due oggetti: Gli \textbf{span} e i \textbf{trace}.\\
-\subsection{Span}
-Sono degli oggetti che rappresentano una singola operazione di un micro servizio. Ogni span ha un proprio ID, una durata, 
-gli si possono aggiungere dei tag che sono coppie chiave valore, oppure dei log, messaggi che contengono informazioni. Un tipo speciale di log è il LogError che permette
-di evidenziare gli errori in cui un micro servizio va incontro. Un' altro oggetto che può essere associato ad uno span è il baggageItem, ovvero un qualunque tipo di oggetto a cui può accedere chiunque abbia un riferimento a quello span.
-\subsection{Trace}
-Un trace è una sequenza di span in relazione tra loro, possono essere dello stesso servizio oppure appartenere a servizi diversi. Anche i trace hanno un ID e una durata.
-Nella figura 3.1 possiamo vedere un' idea concettuale di come questi due oggetti sono in relazione.
+\\Questo lo fa attraverso due oggetti: Gli \textbf{span} e i \textbf{trace}.\\
+
+\begin{itemize}
+    \item \textbf{Span}\\
+    Sono degli oggetti che rappresentano una singola operazione di un micro servizio. Ogni span ha un proprio ID, una durata, 
+    gli si possono aggiungere dei tag che sono coppie chiave valore, oppure dei log, messaggi che contengono informazioni. Un tipo speciale di log è il LogError che permette
+    di evidenziare gli errori in cui un micro servizio va incontro. Un' altro oggetto che può essere associato ad uno span è il baggageItem, ovvero un qualunque tipo di oggetto a cui può accedere chiunque abbia un riferimento a quello span.
+    \newpage
+    \item  \textbf{Trace}\\
+    Un trace è una sequenza di span in relazione tra loro, possono essere dello stesso servizio oppure appartenere a servizi diversi. Anche i trace hanno un ID e una durata.
+   
+\end{itemize}
+
+Nella figura 3.1 possiamo vedere un' idea concettuale di come questi due oggetti sono in relazione.\\
+
+
+
 
 \begin{figure}[H]
     
@@ -98,8 +107,8 @@ Nella figura 3.1 possiamo vedere un' idea concettuale di come questi due oggetti
     \centering
     \caption{Colori diversi,micro servizi diversi}
 \end{figure}
-Questa tecnologia è stata scelta sin dall' inizio dai tutori aziendali.
-\section{Jaeger}
+Questa tecnologia è stata scelta sin dall' inizio dai tutori aziendali.\\[12pt]
+\textbf{Jaeger}\\
 
 Jaeger\cite{jaeger:1} è uno strumento offre un sistema per la raccolta, storage e visualizzazione dei trace e degli span.
 È formato da diversi componenti: jaeger-client,jaeger-collector, jaeger-agent, jaeger-query e database.
@@ -134,25 +143,25 @@ Inoltre, dopo aver registrato qualche span, jaeger si occupa anche di costruire 
     \caption{Grafo costruito automaticamente da Jaeger che costruisce tutti i collegamenti tra i vari servizi.}
 \end{figure}
 
-\section{Go kit}
+\textbf{Go kit}\\
 Go kit\cite{go:2} è una libreria Golang che è stata utilizzata per lo sviluppo dello ZDM\cite{zdm:1}. Cercando tra la documentazione, sono stati trovati anche dei metodi relativi al tracing che si sono rivelati utili
-per il tracing delle richieste HTTP tra i micro servizi. 
-% TODO Cambia git in Gogs
-\section{Gogs}
-Gogs\cite{gogs:1} è una piattaforma che ospita un servizio di tipo git. Quindi similmente a Github facilita lo sviluppo di un software quando si è tante persone a svilupparlo. Lo zdm è stato sviluppato attraverso questa piattaforma, dunque è stato garantito l' accesso al tirocinante e si è creato un nuovo branch dove poter modificare il codice. 
+per il tracing delle richieste HTTP tra i micro servizi. \\[12pt]
 
-\section{Docker}
-Docker\cite{docker:1} è una piattaforma che permette di creare container (spazi virtuali) dove poter girare programmi in sicurezza, in modo tale che se tale programma presenta dei problemi non si riperquotono al di fuori del container. L' architettura dello ZDM\cite{zdm:1} prevede che ogni servizio giri nel proprio container; lo stesso si è deciso per Jaeger, dato che è un servizio esso stesso che comunica con i micro servizi.
-\section{Easyredmine}
-Easyredmine\cite{easyredmine:1} è una piattaforma online che rende più facile e intuitiva la gestione di lavoro degli sviluppatori di Zerynth, secondo le regole dello sviluppo AGILE.
+\textbf{Gogs}\\
+Gogs\cite{gogs:1} è una piattaforma che ospita un servizio di tipo git. Quindi similmente a Github facilita lo sviluppo di un software quando si è tante persone a svilupparlo. Lo zdm è stato sviluppato attraverso questa piattaforma, dunque è stato garantito l' accesso al tirocinante e si è creato un nuovo branch dove poter modificare il codice. \\[12pt]
 
-\section{Rabbit Message Queue}
-Rabbit Message Queue\cite{rabbit:1} (abbreviato RMQ) un protocollo di scambio di messaggi. Si basa sul concetto di pubblicare e prelevare messaggi su/da una coda di messaggi. Chi pubblica un messaggio non lo fa direttamente su una coda ma su un oggetto chiamato exchange. Ad un messaggio viene associato un \textit{topic}, ovvero un'etichetta per identificare l'argomento del messaggio. L'exchange si occupa di mettere quei messaggi nella coda giusta. Dall' altro lato chi 
+\textbf{Docker}\\
+Docker\cite{docker:1} è una piattaforma che permette di creare container (spazi virtuali) dove poter girare programmi in sicurezza, in modo tale che se tale programma presenta dei problemi non si riperquotono al di fuori del container. L' architettura dello ZDM\cite{zdm:1} prevede che ogni servizio giri nel proprio container; lo stesso si è deciso per Jaeger, dato che è un servizio esso stesso che comunica con i micro servizi.\\[12pt]
+\textbf{Easyredmine}\\
+Easyredmine\cite{easyredmine:1} è una piattaforma online che rende più facile e intuitiva la gestione di lavoro degli sviluppatori di Zerynth, secondo le regole dello sviluppo AGILE.\\[12pt]
+
+\textbf{Rabbit Message Queue}\\
+Rabbit Message Queue\cite{rabbit:1} (abbreviato RMQ) è un protocollo di scambio di messaggi. Si basa sul concetto di pubblicare e prelevare messaggi su/da una coda di messaggi. Chi pubblica un messaggio non lo fa direttamente su una coda ma su un oggetto chiamato exchange. Ad un messaggio viene associato un \textit{topic}, ovvero un'etichetta per identificare l'argomento del messaggio. L'exchange si occupa di mettere quei messaggi nella coda giusta. Dall' altro lato chi 
 vuole prelevare i messaggi di una coda deve sottoscriversi ad essa con un determinato topic. Allora verranno prelevati solo messaggi con il topic corrispondete a quello scelto durante la fase di iscrizione.\\
-Qesto protocollo è stato usato attraverso la libreria GO amqp.
-\section{Zerynth Device Manager}
+Questo protocollo è stato usato attraverso la libreria GO amqp.\\[12pt]
+\textbf{Zerynth Device Manager}\\
 Lo Zerynth Device Manager\cite{zdm:1} (abbreviato ZDM) l' applicazione distribuita di Zerynth. È un servizio per la gestione di device e di dati per registrare, organizzare, monitorare, aggiornare e gestire in maniera remota IoT device ( device dell' internet delle cose).
-È anche l'applicazione su cui è dovuto implementare il sistema di tracing di micro servizi.
+È anche l'applicazione su cui si è dovuto implementare il sistema di tracing di micro servizi.
 
 \chapter{Architettura generale del sistema di tracing}
 In questo capitolo vedremo una descrizione quanto meno dettagliata dell' architettura del sistema. Si parlerà delle 3 principali comunicazioni tracciate, e per ognuna come si è realizzato il tracing attraverso le
