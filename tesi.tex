@@ -152,8 +152,7 @@ Gogs\cite{gogs:1} è una piattaforma che ospita un servizio di tipo git. Quindi 
 
 \textbf{Docker}\\
 Docker\cite{docker:1} è una piattaforma che permette di creare container (spazi virtuali) dove poter girare programmi in sicurezza, in modo tale che se tale programma presenta dei problemi non si riperquotono al di fuori del container. L' architettura dello ZDM\cite{zdm:1} prevede che ogni servizio giri nel proprio container; lo stesso si è deciso per Jaeger, dato che è un servizio esso stesso che comunica con i micro servizi.\\[12pt]
-\textbf{Easyredmine}\\
-Easyredmine\cite{easyredmine:1} è una piattaforma online che rende più facile e intuitiva la gestione di lavoro degli sviluppatori di Zerynth, secondo le regole dello sviluppo AGILE.\\[12pt]
+
 
 \textbf{Rabbit Message Queue}\\
 Rabbit Message Queue\cite{rabbit:1} (abbreviato RMQ) è un protocollo di scambio di messaggi. Si basa sul concetto di pubblicare e prelevare messaggi su/da una coda di messaggi. Chi pubblica un messaggio non lo fa direttamente su una coda ma su un oggetto chiamato exchange. Ad un messaggio viene associato un \textit{topic}, ovvero un'etichetta per identificare l'argomento del messaggio. L'exchange si occupa di mettere quei messaggi nella coda giusta. Dall' altro lato chi 
@@ -242,7 +241,7 @@ A livello di servizio, bisogna passare il contesto che si vuole tracciare alla r
 \chapter{Lavoro svolto}
 Le prime due settimane del tirocinio sono state di preparazione. Dopo essersi recati in ufficio per incontrare i tutori aziendali, si è discusso
 del lavoro da fare e come farlo; si è introdotto il tirocinante nell'ambiente lavorativo e gli si è spiegato come lavorano.\\
-Zerynth ha scelto, da qualche anno, il protocollo di sviluppo AGILE: lavorano in sprint di 2 settimane, ovvero: all'inizio dello sprint (o alla fine del precedente) programmano i propri "task" da svolgere per lo sprint; un task può essere un qualunque tipo di lavoro, che viene stimato da chi se ne occupa in un quantitativo di ore. Quindi si cerca di finire quel task nel tempo stimato, riportando giornalmente sulla piattaforma di Easyredmine quanto tempo si è lavorato a quel task.
+Zerynth ha scelto, da qualche anno, il protocollo di sviluppo AGILE: lavorano in sprint di 2 settimane, ovvero: all'inizio dello sprint (o alla fine del precedente) programmano i propri "task" da svolgere per lo sprint; un task può essere un qualunque tipo di lavoro, che viene stimato da chi se ne occupa in un quantitativo di ore. Quindi si cerca di finire quel task nel tempo stimato, riportando giornalmente sulla piattaforma di Easyredmine\cite{easyredmine:1} quanto tempo si è lavorato a quel task.
 Non finire un task nel tempo stimato non è necessariamente un problema; infatti questa stima è solamente una stima ottimistica. Inoltre ogni task ha una priorità ed è specificato se un task è "rimandabile", nel senso che si può rimandare allo sprint successivo, oppure "non rimandabile", ovvero un task con assoluta urgenza. Inoltre, secondo il metodo di sviluppo agile,  si lavora per raggiungere una \textit{"milestone"}, ovvero un obbiettivo da completare entro un determinato numero di sprint. Per esempio il sistema di tracing sviluppato da questo tirocinio è stato inserito proprio nel milestone più  vicino.\\
 Quindi ci si è adattati a questo tipo di lavoro; si è inserito il tirocinante nella piattaforma e si è iniziato ad assegnargli task.\\
 Da ora in poi questo capitolo sarà diviso in sezioni, dove ogni sezione corrisponde ad uno sprint di due settimane.
@@ -450,6 +449,7 @@ Tra la varie skill acquisite si riportano quelle più rilevanti.
 \begin{itemize}
     \item[] \textbf{Git}: acquisita dimestichezza nell' uso dei comandi Git, e quindi anche di lavorare in un ambiente di sviluppo condiviso con più sviluppatori.
     \item[] \textbf{Sviluppo AGILE}: utilizzando i principi di questo metodo di lavoro , il tirocinante è riuscito ad adattarsi ad essi ed integrarsi nel flusso di lavoro dell'azienda, partecipando alle riunioni (sprint review) e discutendo del lavoro svolto e quello da completare.
+    \item[] \textbf{Easyredmine}: attraverso la piattaforma di Easyredmine\cite{easyredmine:1}, il tirocinante ha acquisito competenza nell'organizziazione del lavoro; in particolare questa piattaforma è stata utilizzata per registrare il tempo speso sui vari task assegnati al tirocinante.
     \item[] \textbf{Docker}: acquisita dimestichezza nell' uso di docker e docker compose.
     \item[] \textbf{Golang}: acquisita dimestichezza nell' uso di Golang e delle sue pratiche.
     \item[] \textbf{Architettura}: approfondito in modo pratico il funzionamento di un' architettura a micro servizi, solo accennata nei corsi di studio seguiti dal tirocinante.
@@ -473,7 +473,7 @@ Quindi si è passati alla descrizione di come si è implementato il tracing
 di richieste HTTP tra microservizi di tipo client / server. Poi il tracing dello scambio di messaggi delle ode RMQ. Infine  il tracing delle richieste ai database.
 Dopo aver affinato queste implementazioni e inserite nelle librerie dello ZDM\cite{zdm:1}, si è passato ad implementarle in altri microservizi. Infine c'è stata una fase di testing e la stesura della documentazione.
 
-L'autore del lavoro si ritiene abbastanza soddisfatto del risultato ottenuto, rispetta abbastanza gli obbiettivi presupposti dal tirocinio; tuttavia si poteva fare anche di meglio, e con più tempo a disposizione e una situazione lavorativa piú comoda sicuramente si sarebbe ottenuto un risultato migliore. 
+Il tirocinante si ritiene abbastanza soddisfatto del risultato ottenuto, rispetta abbastanza gli obbiettivi presupposti dal tirocinio; tuttavia si poteva fare anche di meglio, e con più tempo a disposizione e una situazione lavorativa piú comoda sicuramente si sarebbe ottenuto un risultato migliore. 
 Malgrado ció il tirocinante è fiducioso nel dire che il lavoro svolto ha portato ad un sistema, seppur non completo (alcuni servizi non sono stati tracciati, per mancanza di tempo o per altri motivi), funzionante ed utile agli sviluppatori dello ZDM\cite{zdm:1}.
 
 
