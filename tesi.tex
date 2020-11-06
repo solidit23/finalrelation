@@ -65,8 +65,9 @@ La relazione proseguirà in questo modo:
 \chapter{Basi di Partenza}
 \section{Scelta del tirocinio}
 Innanzitutto diamo motivazione della scelta di svolgere un tirocinio anziché una classica tesi triennale. In primo luogo è semplicemente perché le idee di un possibile argomento
-per una tesi scarseggiavano; ma il motivo principale è che l' autore cercava qualche progetto pratico che lo potesse introdurre in un ambiente lavorativo, per affinare le sue abilità pratiche. Dunque l' autore ha iniziato a cercare tra i vari tirocini proposti nell' apposito albo. Non soddisfatto delle varie proposte, e notato che quasi tutti fosserò già occupati, si è preferito chiedere direttamente al Professore Daniele Mazzei, il quale nelle lezioni del corso di Programmazione di Interfacce ha introdotto agli studenti l'azienda di Zerynth della quale è co-fondatore; ha invitato a lezione 
+per una tesi scarseggiavano; ma il motivo principale è che l' autore cercava qualche progetto pratico che lo potesse introdurre in un ambiente lavorativo, per affinare le sue abilità pratiche. Dunque l' autore ha iniziato a cercare tra i vari tirocini proposti nell' apposito albo. Non soddisfatto delle varie proposte, e notato che quasi tutti fosserò già occupati, si è preferito chiedere direttamente al Dr. Daniele Mazzei, il quale nelle lezioni del corso di Programmazione di Interfacce ha introdotto agli studenti l'azienda di Zerynth della quale è co-fondatore; ha invitato a lezione 
 il CTO dell' azienda Giacomo Baldi per discutere del lavoro svolto da Zerynth ed di eventuali occasioni di tirocini. Dunque l'autore ha scritto al professore per dichiarare il suo interesse per un eventuale tirocinio, e dopo un breve colloquio con G.Baldi è stato proposto questo tirocinio sullo sviluppo di un sistema di tracing per architettura a micro servizi.
+\newpage
 \section{Preparazione autonoma}
 Dopo essermi incontrato con i miei tutori aziendali, ci siamo accordati su cosa studiare autonomamente per prepararsi allo sviluppo del sistema.
 Prima di tutto, ci si è focalizzato  sullo studio autonomo del linguaggio di programmazione Golang poiché è il linguaggio utilizzato per lo ZDM\cite{zdm:1}.
@@ -142,7 +143,7 @@ Inoltre, dopo aver registrato qualche span, jaeger si occupa anche di costruire 
     \centering
     \caption{Grafo costruito automaticamente da Jaeger che costruisce tutti i collegamenti tra i vari servizi.}
 \end{figure}
-
+\newpage
 \textbf{Go kit}\\
 Go kit\cite{go:2} è una libreria Golang che è stata utilizzata per lo sviluppo dello ZDM\cite{zdm:1}. Cercando tra la documentazione, sono stati trovati anche dei metodi relativi al tracing che si sono rivelati utili
 per il tracing delle richieste HTTP tra i micro servizi. \\[12pt]
@@ -151,13 +152,14 @@ per il tracing delle richieste HTTP tra i micro servizi. \\[12pt]
 Gogs\cite{gogs:1} è una piattaforma che ospita un servizio di tipo git. Quindi similmente a Github facilita lo sviluppo di un software quando si è tante persone a svilupparlo. Lo zdm è stato sviluppato attraverso questa piattaforma, dunque è stato garantito l' accesso al tirocinante e si è creato un nuovo branch dove poter modificare il codice. \\[12pt]
 
 \textbf{Docker}\\
-Docker\cite{docker:1} è una piattaforma che permette di creare container (spazi virtuali) dove poter girare programmi in sicurezza, in modo tale che se tale programma presenta dei problemi non si riperquotono al di fuori del container. L' architettura dello ZDM\cite{zdm:1} prevede che ogni servizio giri nel proprio container; lo stesso si è deciso per Jaeger, dato che è un servizio esso stesso che comunica con i micro servizi.\\[12pt]
+Docker\cite{docker:1} è una piattaforma che permette di creare container (spazi virtuali) dove poter girare programmi in sicurezza, in modo tale che se tale programma presenta dei problemi non si ripercuotono al di fuori del container. L' architettura dello ZDM\cite{zdm:1} prevede che ogni servizio giri nel proprio container; lo stesso si è deciso per Jaeger, dato che è un servizio esso stesso che comunica con i micro servizi.\\[12pt]
 
 
 \textbf{Rabbit Message Queue}\\
 Rabbit Message Queue\cite{rabbit:1} (abbreviato RMQ) è un protocollo di scambio di messaggi. Si basa sul concetto di pubblicare e prelevare messaggi su/da una coda di messaggi. Chi pubblica un messaggio non lo fa direttamente su una coda ma su un oggetto chiamato exchange. Ad un messaggio viene associato un \textit{topic}, ovvero un'etichetta per identificare l'argomento del messaggio. L'exchange si occupa di mettere quei messaggi nella coda giusta. Dall' altro lato chi 
 vuole prelevare i messaggi di una coda deve sottoscriversi ad essa con un determinato topic. Allora verranno prelevati solo messaggi con il topic corrispondete a quello scelto durante la fase di iscrizione.\\
 Questo protocollo è stato usato attraverso la libreria GO amqp.\\[12pt]
+\newpage
 \textbf{Zerynth Device Manager}\\
 Lo Zerynth Device Manager\cite{zdm:1} (abbreviato ZDM) l' applicazione distribuita di Zerynth. È un servizio per la gestione di device e di dati per registrare, organizzare, monitorare, aggiornare e gestire in maniera remota IoT device ( device dell' internet delle cose).
 È anche l'applicazione su cui si è dovuto implementare il sistema di tracing di micro servizi.
@@ -166,9 +168,9 @@ Lo Zerynth Device Manager\cite{zdm:1} (abbreviato ZDM) l' applicazione distribui
 In questo capitolo vedremo una descrizione quanto meno dettagliata dell' architettura del sistema. Si parlerà delle 3 principali comunicazioni tracciate, e per ognuna come si è realizzato il tracing attraverso le
 tecnologie menzionate nel capitolo precedente.
 \section{Main dei servizi e Client Jaeger}
-Per prima cosa viene inizializzato il tracer nel main ( il file go principale del servizio). Questo tracer permette di creare gli span, viene settato come Tracer Globale attraverso il metodo della libreria di opentracing "setGlobalTracer()"; settandolo come tracer globale, si è in grado di accedervi in qualunque "zona" del codice del microservizio, e questo è fondamentale, in quanto ci permette di alleggerire
+Per prima cosa viene inizializzato il tracer nel main ( il file go principale del servizio). Questo tracer permette di creare gli span, viene settato come Tracer Globale attraverso il metodo della libreria di opentracing "setGlobalTracer()"; settandolo come tracer globale, si è in grado di accedervi in qualunque "zona" del codice del micro servizio, e questo è fondamentale, in quanto ci permette di alleggerire
 di molto il codice di ogni servizio, evitando di trascinare dietro il tracer. Per inizializzare il tracer si è creata una funzione che si occupa di settare le impostazioni corrette dello jaeger client e restituisce il nuovo tracer. Si è deciso di mettere le impostazioni
-di Jaeger come variabili d'ambiente per ogni microservizio. Queste variabili d'ambiente servono per scegliere la configurazione dello jaeger client, in particolare del \textit{sampler}: il sampler è l' oggetto che definisce in che modo vengono mandati gli span allo jaeger collector. Ne esistono di più tipi, per ragioni di testing e debugging si è scelto un sampler probabilistico
+di Jaeger come variabili d'ambiente per ogni micro servizio. Queste variabili d'ambiente servono per scegliere la configurazione dello jaeger client, in particolare del \textit{sampler}: il sampler è l' oggetto che definisce in che modo vengono mandati gli span allo jaeger collector. Ne esistono di più tipi, per ragioni di testing e debugging si è scelto un sampler probabilistico
  di parametro 1: un sampler che spedisce tutti gli span perché il parametro 1 equivale alla percentuale di span spediti (1=100\%). 
 \begin{figure}[H]
     \includegraphics[scale=0.5]{envvar.png}
@@ -481,8 +483,14 @@ Malgrado ció il tirocinante è fiducioso nel dire che il lavoro svolto ha porta
 \bibliography{biblio}
 \bibliographystyle{ieeetr}
 
- 
-\paragraph{Ringraziamenti}
+ \newpage
+\paragraph{Ringraziamenti}\mbox{}\\[12pt]
 
 
+\textit{A conclusione di questo elaborato, desidero menzionare tutte le persone che mi hanno aiutato durante questo percorso.}\\[12pt]
+\textit{Ringrazio particolarmente il Dr. Giacomo Baldi e il Dr. Daniele Mazzei, per avermi offerto questa opportunità di tirocinio presso la loro azienda, Zerynth.}\\[12pt]
+\textit{Ringrazio anche tutto lo staff di Zerynth per l' aiuto che mi hanno fornito. In particolare ringrazio Davide Neri, la persona che si è occupata di supervisionare il mio lavoro, senza la quale sarei stato più volte perso nei meandri del codice dello ZDM}\\[12pt]
+\textit{Tengo a ringraziare il mio tutore accademico, il Dr. Gabriele Mencagli, che, nonostante non lo abbia potuto incontrare di persona per motivi di forza maggiore, mi ha comunque dato un grande aiuto rispondendo tempestivamente a tutte le mie noiose e-mail.}\\[12pt]
+\textit{Grazie a tutti miei colleghi, nonchè amici, che mi hanno accompagnato in questo percorso di studi e che non dimenticherò mai.}\\[12pt]
+\textit{Infine, ma non per importanza , ringrazio profondamente la mia famiglia e la mia ragazza, per tutto il supporto morale, economico e tutti i consigli che mi hanno fornito durante il mio percorso di studi.}
 \end{document}
